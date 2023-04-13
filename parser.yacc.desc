@@ -1,0 +1,201 @@
+
+state 0:
+
+	Start : . Exp 
+
+	INT	shift 5
+	LPAREN	shift 4
+
+	Start	goto 16
+	Exp	goto 3
+	Term	goto 2
+	Unit	goto 1
+
+	.	error
+
+
+state 1:
+
+	Term : Unit .  (reduce by rule 6)
+
+
+
+	.	reduce by rule 6
+
+
+state 2:
+
+	Exp : Term .  (reduce by rule 3)
+	Term : Term . MUL Unit 
+	Term : Term . DIV Unit 
+
+	MUL	shift 7
+	DIV	shift 6
+
+
+	.	reduce by rule 3
+
+
+state 3:
+
+	Start : Exp .  (reduce by rule 0)
+	Exp : Exp . ADD Term 
+	Exp : Exp . SUB Term 
+
+	ADD	shift 9
+	SUB	shift 8
+
+
+	.	reduce by rule 0
+
+
+state 4:
+
+	Unit : LPAREN . Exp RPAREN 
+
+	INT	shift 5
+	LPAREN	shift 4
+
+	Exp	goto 10
+	Term	goto 2
+	Unit	goto 1
+
+	.	error
+
+
+state 5:
+
+	Unit : INT .  (reduce by rule 7)
+
+
+
+	.	reduce by rule 7
+
+
+state 6:
+
+	Term : Term DIV . Unit 
+
+	INT	shift 5
+	LPAREN	shift 4
+
+	Unit	goto 11
+
+	.	error
+
+
+state 7:
+
+	Term : Term MUL . Unit 
+
+	INT	shift 5
+	LPAREN	shift 4
+
+	Unit	goto 12
+
+	.	error
+
+
+state 8:
+
+	Exp : Exp SUB . Term 
+
+	INT	shift 5
+	LPAREN	shift 4
+
+	Term	goto 13
+	Unit	goto 1
+
+	.	error
+
+
+state 9:
+
+	Exp : Exp ADD . Term 
+
+	INT	shift 5
+	LPAREN	shift 4
+
+	Term	goto 14
+	Unit	goto 1
+
+	.	error
+
+
+state 10:
+
+	Exp : Exp . ADD Term 
+	Exp : Exp . SUB Term 
+	Unit : LPAREN Exp . RPAREN 
+
+	ADD	shift 9
+	SUB	shift 8
+	RPAREN	shift 15
+
+
+	.	error
+
+
+state 11:
+
+	Term : Term DIV Unit .  (reduce by rule 5)
+
+
+
+	.	reduce by rule 5
+
+
+state 12:
+
+	Term : Term MUL Unit .  (reduce by rule 4)
+
+
+
+	.	reduce by rule 4
+
+
+state 13:
+
+	Exp : Exp SUB Term .  (reduce by rule 2)
+	Term : Term . MUL Unit 
+	Term : Term . DIV Unit 
+
+	MUL	shift 7
+	DIV	shift 6
+
+
+	.	reduce by rule 2
+
+
+state 14:
+
+	Exp : Exp ADD Term .  (reduce by rule 1)
+	Term : Term . MUL Unit 
+	Term : Term . DIV Unit 
+
+	MUL	shift 7
+	DIV	shift 6
+
+
+	.	reduce by rule 1
+
+
+state 15:
+
+	Unit : LPAREN Exp RPAREN .  (reduce by rule 8)
+
+
+
+	.	reduce by rule 8
+
+
+state 16:
+
+
+	EOF	accept
+
+
+	.	error
+
+14 of 41 action table entries left after compaction
+13 goto table entries
