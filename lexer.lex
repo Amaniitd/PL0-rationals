@@ -53,9 +53,11 @@ vchar = [0-9A-Za-z];
 "od" => (column := !column + size(yytext); Tokens.OD(!linenum,!column));
 
 
+"rational" => (column := !column + size(yytext); Tokens.RATIONAL(!linenum,!column));
+
 
 ";" => (column := !column + size(yytext); Tokens.SEMICOLON(!linenum,!column));
-
+"," => (column := !column + size(yytext); Tokens.COMMA(!linenum,!column));
 
 "{" => (column := !column + size(yytext); Tokens.LBRACE(!linenum,!column));
 "}" => (column := !column + size(yytext); Tokens.RBRACE(!linenum,!column));

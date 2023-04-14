@@ -2,6 +2,8 @@ signature Parser_TOKENS =
 sig
 type ('a,'b) token
 type svalue
+val COMMA:  'a * 'a -> (svalue,'a) token
+val RATIONAL:  'a * 'a -> (svalue,'a) token
 val OD:  'a * 'a -> (svalue,'a) token
 val DO:  'a * 'a -> (svalue,'a) token
 val WHILE:  'a * 'a -> (svalue,'a) token

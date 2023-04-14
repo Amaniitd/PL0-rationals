@@ -1,3 +1,5 @@
+rational a, b, c;
+
 {
 if tt || ff then 
    a := 2;

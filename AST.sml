@@ -3,7 +3,20 @@ structure R = Rational(Bigint)
 structure AST = 
 struct 
 
-datatype cmds = cmds of command * cmds | command of command | emptyCmds
+datatype Block = Block of decls * cmds
+
+and decls = varDecls of varDecls | emptyDecls
+
+and varDecls = ratDecls of RatVars 
+| boolDecls of BoolVars
+| intDecls of IntVars
+
+and RatVars = RatVars of string * RatVars | RatVar of string 
+and BoolVars = BoolVars of string * BoolVars | BoolVar of string
+and IntVars = IntVars of string * IntVars | IntVar of string
+
+
+and cmds = cmds of command * cmds | command of command | emptyCmds
 
 
 and command = assignCmd of assignCmd

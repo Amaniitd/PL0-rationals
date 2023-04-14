@@ -8,9 +8,13 @@
    | ADD | SUB | MUL | DIV | LPAREN | RPAREN | EOF | TT | FF | 
    OR | AND | NOT | EQ | NEQ | LT | GT | LEQ | GEQ | ASSIGN | ID of string | CALL
    | READ | PRINT | IF | THEN | ELSE | FI | LBRACE | RBRACE | SEMICOLON
-   | WHILE | DO | OD
+   | WHILE | DO | OD | RATIONAL | COMMA
 
-%nonterm Start of AST.cmds
+%nonterm Start of AST.Block
+   | Block of AST.Block
+   | DeclSeq of AST.decls
+   | varDecls of AST.varDecls
+   | RatVars of AST.RatVars
    | CmdSeq of AST.cmds
    | Cmds of AST.cmds
    | Cmd of AST.command
@@ -42,7 +46,17 @@
 
 %%
 
-Start : CmdSeq (CmdSeq)
+Start : Block (Block)
+Block : DeclSeq CmdSeq (AST.Block(DeclSeq, CmdSeq))
+
+DeclSeq : varDecls (AST.varDecls(varDecls))
+        | (AST.emptyDecls)
+
+varDecls : RATIONAL RatVars SEMICOLON (AST.ratDecls(RatVars))
+
+RatVars : ID COMMA RatVars (AST.RatVars(ID, RatVars))
+        | ID (AST.RatVar(ID))
+
 
 CmdSeq : LBRACE Cmds RBRACE (Cmds)
    | LBRACE RBRACE (AST.emptyCmds)
