@@ -1,0 +1,12 @@
+{
+if tt || ff then 
+   a := 2;
+else 
+   a := 3;
+fi;
+
+while tt do 
+   a := 2;
+od;
+
+}

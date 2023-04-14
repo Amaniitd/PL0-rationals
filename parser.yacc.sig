@@ -2,6 +2,32 @@ signature Parser_TOKENS =
 sig
 type ('a,'b) token
 type svalue
+val OD:  'a * 'a -> (svalue,'a) token
+val DO:  'a * 'a -> (svalue,'a) token
+val WHILE:  'a * 'a -> (svalue,'a) token
+val SEMICOLON:  'a * 'a -> (svalue,'a) token
+val RBRACE:  'a * 'a -> (svalue,'a) token
+val LBRACE:  'a * 'a -> (svalue,'a) token
+val FI:  'a * 'a -> (svalue,'a) token
+val ELSE:  'a * 'a -> (svalue,'a) token
+val THEN:  'a * 'a -> (svalue,'a) token
+val IF:  'a * 'a -> (svalue,'a) token
+val PRINT:  'a * 'a -> (svalue,'a) token
+val READ:  'a * 'a -> (svalue,'a) token
+val CALL:  'a * 'a -> (svalue,'a) token
+val ID: (string) *  'a * 'a -> (svalue,'a) token
+val ASSIGN:  'a * 'a -> (svalue,'a) token
+val GEQ:  'a * 'a -> (svalue,'a) token
+val LEQ:  'a * 'a -> (svalue,'a) token
+val GT:  'a * 'a -> (svalue,'a) token
+val LT:  'a * 'a -> (svalue,'a) token
+val NEQ:  'a * 'a -> (svalue,'a) token
+val EQ:  'a * 'a -> (svalue,'a) token
+val NOT:  'a * 'a -> (svalue,'a) token
+val AND:  'a * 'a -> (svalue,'a) token
+val OR:  'a * 'a -> (svalue,'a) token
+val FF:  'a * 'a -> (svalue,'a) token
+val TT:  'a * 'a -> (svalue,'a) token
 val EOF:  'a * 'a -> (svalue,'a) token
 val RPAREN:  'a * 'a -> (svalue,'a) token
 val LPAREN:  'a * 'a -> (svalue,'a) token

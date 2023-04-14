@@ -39,7 +39,7 @@ fun parse (lexer) =
 
 val parseString = parse o stringToLexer
 val parseFile = parse o fileToLexer
-fun evaluateString str = R.showRat( AST.eval (parseString str))
+fun evaluateString str = "jo"
 
 (* cli interface to continuously take input and output the result on pressing enter *)
 
