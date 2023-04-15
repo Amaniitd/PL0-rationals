@@ -1,4 +1,8 @@
 rational a, b, c;
+integer i, j, k;
+boolean x, y, z;
+integer d, e, f;
+
 
 {
 if tt || ff then 

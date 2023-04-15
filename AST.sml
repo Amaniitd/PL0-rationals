@@ -7,9 +7,10 @@ datatype Block = Block of decls * cmds
 
 and decls = varDecls of varDecls | emptyDecls
 
-and varDecls = ratDecls of RatVars 
-| boolDecls of BoolVars
-| intDecls of IntVars
+and varDecls = ratDecls of RatVars * varDecls
+| boolDecls of BoolVars * varDecls
+| intDecls of IntVars * varDecls
+| emptyVarDecls
 
 and RatVars = RatVars of string * RatVars | RatVar of string 
 and BoolVars = BoolVars of string * BoolVars | BoolVar of string

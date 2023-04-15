@@ -54,6 +54,8 @@ vchar = [0-9A-Za-z];
 
 
 "rational" => (column := !column + size(yytext); Tokens.RATIONAL(!linenum,!column));
+"integer" => (column := !column + size(yytext); Tokens.INTEGER(!linenum,!column));
+"boolean" => (column := !column + size(yytext); Tokens.BOOLEAN(!linenum,!column));
 
 
 ";" => (column := !column + size(yytext); Tokens.SEMICOLON(!linenum,!column));
