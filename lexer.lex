@@ -57,6 +57,8 @@ vchar = [0-9A-Za-z];
 "integer" => (column := !column + size(yytext); Tokens.INTEGER(!linenum,!column));
 "boolean" => (column := !column + size(yytext); Tokens.BOOLEAN(!linenum,!column));
 
+"procedure" => (column := !column + size(yytext); Tokens.PROCEDURE(!linenum,!column));
+
 
 ";" => (column := !column + size(yytext); Tokens.SEMICOLON(!linenum,!column));
 "," => (column := !column + size(yytext); Tokens.COMMA(!linenum,!column));

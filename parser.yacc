@@ -8,11 +8,12 @@
    | ADD | SUB | MUL | DIV | LPAREN | RPAREN | EOF | TT | FF | 
    OR | AND | NOT | EQ | NEQ | LT | GT | LEQ | GEQ | ASSIGN | ID of string | CALL
    | READ | PRINT | IF | THEN | ELSE | FI | LBRACE | RBRACE | SEMICOLON
-   | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN 
+   | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN | PROCEDURE
 
 %nonterm Start of AST.Block
    | Block of AST.Block
    | DeclSeq of AST.decls
+   | procDecls of AST.procDef
    | varDecls of AST.varDecls
    | RatVars of AST.RatVars
    | BoolVars of AST.BoolVars
@@ -51,15 +52,15 @@
 Start : Block (Block)
 Block : DeclSeq CmdSeq (AST.Block(DeclSeq, CmdSeq))
 
-DeclSeq : varDecls (AST.varDecls(varDecls))
+DeclSeq : varDecls DeclSeq (AST.varDecls(varDecls, DeclSeq))
+        | procDecls DeclSeq (AST.procDecls(procDecls, DeclSeq))
         | (AST.emptyDecls)
 
-varDecls : RATIONAL RatVars SEMICOLON varDecls (AST.ratDecls(RatVars, varDecls))
-         | BOOLEAN BoolVars SEMICOLON varDecls (AST.boolDecls(BoolVars, varDecls))
-         | INTEGER IntVars SEMICOLON varDecls (AST.intDecls(IntVars, varDecls))
-         | RATIONAL RatVars SEMICOLON (AST.ratDecls(RatVars, AST.emptyVarDecls))
-         | BOOLEAN BoolVars SEMICOLON (AST.boolDecls(BoolVars, AST.emptyVarDecls))
-         | INTEGER IntVars SEMICOLON (AST.intDecls(IntVars, AST.emptyVarDecls))
+procDecls : PROCEDURE ID Block SEMICOLON (AST.ProcDef(ID, Block))
+
+varDecls : RATIONAL RatVars SEMICOLON (AST.ratDecls(RatVars))
+         | INTEGER IntVars SEMICOLON (AST.intDecls(IntVars))
+         | BOOLEAN BoolVars SEMICOLON (AST.boolDecls(BoolVars))
 
 RatVars : ID COMMA RatVars (AST.RatVars(ID, RatVars))
         | ID (AST.RatVar(ID))

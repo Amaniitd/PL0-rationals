@@ -5,16 +5,22 @@ struct
 
 datatype Block = Block of decls * cmds
 
-and decls = varDecls of varDecls | emptyDecls
+and decls = varDecls of varDecls * decls | procDecls of procDef * decls 
+   | varDecl of varDecls | procDecl of procDef | emptyDecls
 
-and varDecls = ratDecls of RatVars * varDecls
-| boolDecls of BoolVars * varDecls
-| intDecls of IntVars * varDecls
-| emptyVarDecls
+and varDecls = ratDecls of RatVars 
+| boolDecls of BoolVars 
+| intDecls of IntVars 
+| ratDecl of RatVars
+| boolDecl of BoolVars
+| intDecl of IntVars
 
 and RatVars = RatVars of string * RatVars | RatVar of string 
 and BoolVars = BoolVars of string * BoolVars | BoolVar of string
 and IntVars = IntVars of string * IntVars | IntVar of string
+
+
+and procDef = ProcDef of string * Block
 
 
 and cmds = cmds of command * cmds | command of command | emptyCmds
