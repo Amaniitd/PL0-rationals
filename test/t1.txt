@@ -10,17 +10,8 @@ boolean x, y, z;
 integer d, e, f;
 
 procedure p2 {};
-
+(*hello world!! *)
 {
-if tt || ff then 
-   a := 2;
-else 
-   a := 3;
-fi;
-
-while tt do 
-   a := 2;
-od;
 
 };
 
@@ -36,3 +27,4 @@ while tt do
 od;
 
 }
+

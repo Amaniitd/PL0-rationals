@@ -19,6 +19,8 @@ val divide : rational * rational -> rational option (* division *)
 val showRat : rational -> string
 (* val showDecimal : rational -> string *)
 val fromDecimal : string -> rational
+val isInt : rational -> bool
+val zero : rational
 (* val toDecimal : rational -> string *)
 end;
 
@@ -301,5 +303,17 @@ else
       (x, y)
    end
 
+fun isInt (a:rational) = 
+   let 
+      val x = first(a)
+      val y = second(a)
+   in 
+      if Bigint.equal(y, Bigint.make_bigint("1")) then
+         true
+      else
+         false
+   end
+
+val zero = (Bigint.zero, Bigint.make_bigint("1")):rational
 
 end;

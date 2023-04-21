@@ -73,9 +73,9 @@ vchar = [0-9A-Za-z];
 "/" => (column := !column + size(yytext); Tokens.DIV(!linenum,!column));
 
 
-"~" {digit}+ "." {digit}+ "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
-{digit}+ "." {digit}+ "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
+"~" {digit}+ "." {digit}* "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
+{digit}+ "." {digit}* "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
 ["~"] {digit}+ => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
 {digit}+ => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
 
-{vchar}+ => (column := !column + size(yytext); Tokens.ID(yytext,!linenum,!column));
+{alpha}+ {vchar}* => (column := !column + size(yytext); Tokens.ID(yytext,!linenum,!column));
