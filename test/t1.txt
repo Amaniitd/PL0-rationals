@@ -1,6 +1,17 @@
 rational a,c;
 boolean b;
 {
-   a:= inverse c;
+   while tt do
+      if a then
+         a := a + c;
+      else
+         a := a - c;
+      fi;
+      while ff do
+         a := a + c;
+      od;
+      a := a + c;
+   od;
+
 }
 

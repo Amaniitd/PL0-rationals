@@ -46,6 +46,7 @@ and BoolExp = TT | FF | Unopr_bool of unop_bool * BoolExp
 | Binopr_bool of binop_bool * BoolExp * BoolExp
 | relationalOpr of relational_op * RatExp * RatExp
 
+
 and binop_bool = And | Or 
 and unop_bool = Not
 and relational_op = Eq | Neq | Lt | Gt | Leq | Geq
@@ -91,7 +92,7 @@ fun lookup(s:string, scopeSt) =
       | scope::scopes => if isInScope(s,scope) then lookupInScope(s,scope) else lookup(s,scopes)
    end
 
-fun update(s:string, v:value, scopeStack) =
+fun update(s:string, v:value) =
    let
       fun typeOf (v:value) =
          case v of
@@ -124,14 +125,18 @@ fun update(s:string, v:value, scopeStack) =
          symbols(Symbol(s',t,v),scope') => if s = s' then true else isInScope(s,scope')
          | symbol(Symbol(s',t,v)) => if s = s' then true else false
          | emptyStable => false
+      
+      fun helper (s:string, v:value, scopeSt:stable list): stable list =
+         case scopeSt of
+         [] => raise Fail("Symbol not found | Scope stack is empty")
+         | scope::scopes => if isInScope(s,scope) then updateInScope(s,v,scope)::scopes else scope::helper(s,v,scopes)
    in
       case !scopeStack of
          [] => raise Fail("Symbol not found | Scope stack is empty")
-      | scope::scopes => if isInScope(s,scope) then scopeStack := updateInScope(s,v,scope)::scopes else update(s,v,ref scopes)
-
+      | scope::scopes => scopeStack := helper(s,v,scope::scopes)
    end
 
-fun addSymbol(s:string, t:typ, v:value, scopeStack) =
+fun addSymbol(s:string, t:typ, v:value) =
    let
       fun addSymbolToScope(s:string, t:typ, v:value, scope:stable) =
          case scope of
@@ -144,42 +149,42 @@ fun addSymbol(s:string, t:typ, v:value, scopeStack) =
       | scope::scopes => scopeStack := addSymbolToScope(s,t,v,scope)::scopes
    end
 
-fun newScope (scopeStack) = scopeStack := emptyStable::(!scopeStack)
+fun newScope () = scopeStack := emptyStable::(!scopeStack)
 
-fun defineRatDecl (var, scopeStack) = addSymbol(var, Rat, RatVal(R.zero), scopeStack)
-fun defineBoolDecl (var, scopeStack) = addSymbol(var, Bool, BoolVal(false), scopeStack)
-fun defineIntDecl (var, scopeStack) = addSymbol(var, IntT, IntVal(0), scopeStack)
+fun defineRatDecl (var) = addSymbol(var, Rat, RatVal(R.zero))
+fun defineBoolDecl (var) = addSymbol(var, Bool, BoolVal(false))
+fun defineIntDecl (var) = addSymbol(var, IntT, IntVal(0))
 
-fun defineRatDecls (RatVars(name, v), scopeStack) = (defineRatDecl(name, scopeStack); defineRatDecls(v, scopeStack))
-   | defineRatDecls (RatVar(name), scopeStack) = defineRatDecl(name, scopeStack)
+fun defineRatDecls (RatVars(name, v)) = (defineRatDecl(name); defineRatDecls(v))
+   | defineRatDecls (RatVar(name)) = defineRatDecl(name)
 
-fun defineBoolDecls (BoolVars(name, v), scopeStack) = (defineBoolDecl(name, scopeStack); defineBoolDecls(v, scopeStack))
-   | defineBoolDecls (BoolVar(name), scopeStack) = defineBoolDecl(name, scopeStack)
+fun defineBoolDecls (BoolVars(name, v)) = (defineBoolDecl(name); defineBoolDecls(v))
+   | defineBoolDecls (BoolVar(name)) = defineBoolDecl(name)
 
-fun defineIntDecls (IntVars(name, v), scopeStack) = (defineIntDecl(name, scopeStack); defineIntDecls(v, scopeStack))
-   | defineIntDecls (IntVar(name), scopeStack) = defineIntDecl(name, scopeStack)
+fun defineIntDecls (IntVars(name, v)) = (defineIntDecl(name); defineIntDecls(v))
+   | defineIntDecls (IntVar(name)) = defineIntDecl(name)
 
 
 
-fun defineVarDecls (v, scopeStack) =
+fun defineVarDecls (v) =
    case v of
-   ratDecls(vars) => defineRatDecls(vars,scopeStack)
-   | boolDecls(vars) => defineBoolDecls(vars,scopeStack)
-   | intDecls(vars) => defineIntDecls(vars,scopeStack)
-   | ratDecl(var) => defineRatDecls(var,scopeStack)
-   | boolDecl(var) => defineBoolDecls(var,scopeStack)
-   | intDecl(var) => defineIntDecls(var,scopeStack)
+   ratDecls(vars) => defineRatDecls(vars)
+   | boolDecls(vars) => defineBoolDecls(vars)
+   | intDecls(vars) => defineIntDecls(vars)
+   | ratDecl(var) => defineRatDecls(var)
+   | boolDecl(var) => defineBoolDecls(var)
+   | intDecl(var) => defineIntDecls(var)
 
-fun defineProc (ProcDef(name, blk), scopeStack) = addSymbol(name, Proc, ProcVal(blk), scopeStack)
+fun defineProc (ProcDef(name, blk)) = addSymbol(name, Proc, ProcVal(blk))
 
-fun defineDecls (decls, scopeStack) =
+fun defineDecls (decls) =
    let
       fun defineDecls' (decls) =
          case decls of
-         varDecls(vars,decls') => (defineVarDecls(vars,scopeStack); defineDecls'(decls'))
-         | procDecls(proc,decls') => (defineProc(proc,scopeStack); defineDecls'(decls'))
-         | procDecl(proc) => defineProc(proc,scopeStack)
-         | varDecl(vars) => defineVarDecls(vars,scopeStack)
+         varDecls(vars,decls') => (defineVarDecls(vars); defineDecls'(decls'))
+         | procDecls(proc,decls') => (defineProc(proc); defineDecls'(decls'))
+         | procDecl(proc) => defineProc(proc)
+         | varDecl(vars) => defineVarDecls(vars)
          | emptyDecls => ()
    in
       defineDecls'(decls)
@@ -192,7 +197,7 @@ fun printValue(v:value) = case v of
 
 
 
-fun printScopeStack (scopeStack) =
+fun printScopeStack () =
    let
       fun printType (t:typ) =
          case t of
@@ -203,7 +208,7 @@ fun printScopeStack (scopeStack) =
       
       fun printValue (v:value) =
          case v of
-         RatVal(r) => print("rat")
+         RatVal(r) => print(R.showRat(r))
          | BoolVal(b) => if b then print("true") else print("false")
          | IntVal(i) => print("int")
          | ProcVal(b) => print("ProcVal")
@@ -212,10 +217,12 @@ fun printScopeStack (scopeStack) =
          symbols(Symbol(s,t,v),scope') => (print(s); print(" "); printType(t); print(" "); printValue(v); print(" "); printScope(scope'))
          | symbol(Symbol(s,t,v)) => (print(s); print(" "); printType(t); print(" "); printValue(v); print(" "))
          | emptyStable => ()
-   in
-      case !scopeStack of
+      
+      fun helper(st) = case st of
          [] => ()
-      | scope::scopes => (printScope(scope); printScopeStack(ref scopes))
+      | scope::scopes => (printScope(scope); helper(scopes))
+   in
+      helper(!scopeStack)
    end
 
 fun cast_Rat (v:value) =
@@ -233,20 +240,20 @@ fun cast_Bool (v:value) =
    | ProcVal(b) => raise Fail("Cannot cast Proc to Bool")
 
 
-fun evalBlock ((Block(decls,stmts)), scopeStack) =
+fun evalBlock ((Block(decls,stmts))) =
    let
-      fun evalCmds(cs, scopeStack) =
+      fun evalCmds(cs) =
          let
-            fun evalExp(expr, scopeStack) =
+            fun evalExp(expr) =
                let
-                  fun evalRatExp(r:RatExp, scopeStack):R.rational =
+                  fun evalRatExp(r:RatExp):R.rational =
                      case r of
                      RatVarExp(s) => cast_Rat(lookup(s,!scopeStack))
-                     | Binopr(Add, r1, r2) => R.add(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack))
-                     | Binopr(Sub, r1, r2) => R.subtract(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack))
-                     | Binopr(Mul, r1, r2) => R.multiply(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack))
-                     | Binopr(Div, r1, r2) => valOf(R.divide(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack)))
-                     | UnRatOpr(Neg, r1) => R.neg(evalRatExp(r1,scopeStack))
+                     | Binopr(Add, r1, r2) => R.add(evalRatExp(r1),evalRatExp(r2))
+                     | Binopr(Sub, r1, r2) => R.subtract(evalRatExp(r1),evalRatExp(r2))
+                     | Binopr(Mul, r1, r2) => R.multiply(evalRatExp(r1),evalRatExp(r2))
+                     | Binopr(Div, r1, r2) => valOf(R.divide(evalRatExp(r1),evalRatExp(r2)))
+                     | UnRatOpr(Neg, r1) => R.neg(evalRatExp(r1))
 
 
                   fun isEqual(v1:value, v2:value):bool =
@@ -267,46 +274,47 @@ fun evalBlock ((Block(decls,stmts)), scopeStack) =
                                        RatVal(r2) => R.less(r1,r2)
                                        | _ => false)
 
-                  fun evalBln (b:BoolExp, scopeStack):value =
+                  fun evalBln (b:BoolExp):value =
                      case b of
                      TT => BoolVal(true)
                      | FF => BoolVal(false)
+                     | BoolVarExp(s) => lookup(s,!scopeStack)
                      | Unopr_bool(Not, bln) => 
-                        if isEqual(evalBln(bln, scopeStack), BoolVal(true)) then
+                        if isEqual(evalBln(bln), BoolVal(true)) then
                            BoolVal(false)
                         else
                            BoolVal(true)
-                     | Binopr_bool(And, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) andalso isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
-                     | Binopr_bool(Or, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) orelse isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
-                     | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
-                     | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack)))))
-                     | relationalOpr(Lt, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
-                     | relationalOpr(Gt, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp2, scopeStack)), RatVal(evalRatExp(exp1, scopeStack))))
-                     | relationalOpr(Leq, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))) orelse isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
-                     | relationalOpr(Geq, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp2, scopeStack)), RatVal(evalRatExp(exp1, scopeStack))) orelse isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
+                     | Binopr_bool(And, bln1, bln2) => BoolVal(isEqual(evalBln(bln1), BoolVal(true)) andalso isEqual(evalBln(bln2), BoolVal(true)))
+                     | Binopr_bool(Or, bln1, bln2) => BoolVal(isEqual(evalBln(bln1), BoolVal(true)) orelse isEqual(evalBln(bln2), BoolVal(true)))
+                     | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(RatVal(evalRatExp(exp1)), RatVal(evalRatExp(exp2))))
+                     | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(RatVal(evalRatExp(exp1)), RatVal(evalRatExp(exp2)))))
+                     | relationalOpr(Lt, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp1)), RatVal(evalRatExp(exp2))))
+                     | relationalOpr(Gt, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp2)), RatVal(evalRatExp(exp1))))
+                     | relationalOpr(Leq, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp1)), RatVal(evalRatExp(exp2))) orelse isEqual(RatVal(evalRatExp(exp1)), RatVal(evalRatExp(exp2))))
+                     | relationalOpr(Geq, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp2)), RatVal(evalRatExp(exp1))) orelse isEqual(RatVal(evalRatExp(exp1)), RatVal(evalRatExp(exp2))))
                in
                   case expr of
-                  RatExp(r) => RatVal(evalRatExp(r, scopeStack))
-                  | BoolExp(b) => evalBln(b, scopeStack)
+                  RatExp(r) => RatVal(evalRatExp(r))
+                  | BoolExp(b) => evalBln(b)
                end
 
             fun evalIfCmd (If(bln, cmds1, cmds2)) =
-               case evalExp(BoolExp(bln), scopeStack) of
-               BoolVal(true) => evalCmds(cmds1, scopeStack)
-               | BoolVal(false) => evalCmds(cmds2, scopeStack)
+               case evalExp(BoolExp(bln)) of
+               BoolVal(true) => evalCmds(cmds1)
+               | BoolVal(false) => evalCmds(cmds2)
                | _ => raise Fail("Type mismatch")
             
             fun evalWhileCmd(While(bln, cmds1)) =
-               case evalExp(BoolExp(bln), scopeStack) of
-               BoolVal(true) => (evalCmds(cmds1, scopeStack); evalWhileCmd(While(bln, cmds1)))
+               case evalExp(BoolExp(bln)) of
+               BoolVal(true) => (evalCmds(cmds1); evalWhileCmd(While(bln, cmds1)))
                | BoolVal(false) => ()
                | _ => raise Fail("Type mismatch")
 
-            fun evalPrintCmd(Print(exp)) = printValue(evalExp(exp, scopeStack))
+            fun evalPrintCmd(Print(exp)) = printValue(evalExp(exp))
 
             fun evalCallCmd (Call(s)) = 
                case lookup(s, !scopeStack) of
-               ProcVal(b) => evalBlock(b, scopeStack)
+               ProcVal(b) => evalBlock(b)
                | _ => raise Fail("Type mismatch: " ^ s ^ " is not a procedure")
             
             fun evalReadCmd (Read(s)) = 
@@ -332,17 +340,17 @@ fun evalBlock ((Block(decls,stmts)), scopeStack) =
                in
                   addChars(c);
                   if (!d) = "tt" andalso (!e) = "" then
-                     update(s, BoolVal(true), scopeStack)
+                     update(s, BoolVal(true))
                   else if (!d) = "ff" andalso (!e) = "" then
-                     update(s, BoolVal(false), scopeStack)
+                     update(s, BoolVal(false))
                   else
-                     update(s, RatVal(valOf(R.make_rat(Bigint.make_bigint(!d), Bigint.make_bigint(!e)))), scopeStack)
+                     update(s, RatVal(valOf(R.make_rat(Bigint.make_bigint(!d), Bigint.make_bigint(!e)))))
                end
 
 
-            fun evalCmd(cmdarg, scopeStack) = 
+            fun evalCmd(cmdarg) = 
                case cmdarg of
-               assignCmd(Assign(s, exp)) => addSymbol(s, Rat, evalExp(exp, scopeStack), scopeStack)
+               assignCmd(Assign(s, exp)) => addSymbol(s, Rat, evalExp(exp))
                | ifCmd(ifCmdarg) => evalIfCmd(ifCmdarg)
                | whileCmd(whileCmdarg) => evalWhileCmd(whileCmdarg)
                | printCmd(printCmdarg) => evalPrintCmd(printCmdarg)
@@ -351,16 +359,16 @@ fun evalBlock ((Block(decls,stmts)), scopeStack) =
 
          in
             case cs of
-            cmds(cmd, cmds') => (evalCmd(cmd, scopeStack); evalCmds(cmds', scopeStack))
-            | command(cmd) => evalCmd(cmd, scopeStack)
+            cmds(cmd, cmds') => (evalCmd(cmd); evalCmds(cmds'))
+            | command(cmd) => evalCmd(cmd)
             | emptyCmds => ()
          end
                               
    in
-      newScope(scopeStack);
-      defineDecls(decls,scopeStack);
-      evalCmds(stmts, scopeStack)
-      (* printScopeStack(scopeStack) *)
+      newScope();
+      defineDecls(decls);
+      evalCmds(stmts);
+      popScope()
    end
 
 

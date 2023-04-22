@@ -1,7 +1,17 @@
 rational a,b;
-
+procedure readVal
 {
    read(a);
    read(b);
    print(a+b);
+};
+procedure printVal
+{
+   print(a);
+   print(b);
+};
+
+{
+   call readVal;
+   call printVal;
 }
