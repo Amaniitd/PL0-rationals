@@ -40,7 +40,7 @@ and printCmd = Print of exp
 and ifCmd = If of BoolExp * cmds * cmds
 and whileCmd = While of BoolExp * cmds
 
-and exp = RatExp of RatExp | BoolExp of BoolExp
+and exp = RatExp of RatExp | BoolExp of BoolExp | IDExp of string
 
 and BoolExp = TT | FF | Unopr_bool of unop_bool * BoolExp
 | Binopr_bool of binop_bool * BoolExp * BoolExp
@@ -218,54 +218,55 @@ fun evalBlock ((Block(decls,stmts)), scopeStack) =
    let
       fun evalCmds(cs, scopeStack) =
          let
-         fun evalExp(expr, scopeStack) =
-            let
-               fun evalRatExp(r:RatExp, scopeStack):value =
-                  case r of
-                  RatVarExp(s) => lookup(s,!scopeStack)
+            fun evalExp(expr, scopeStack) =
+               let
+                  fun evalRatExp(r:RatExp, scopeStack):value =
+                     case r of
+                     RatVarExp(s) => lookup(s,!scopeStack)
 
-               fun isEqual(v1:value, v2:value):bool =
-                  case v1 of
-                  RatVal(r1) => (case v2 of
-                                 RatVal(r2) => R.equal(r1,r2)
-                                 | _ => false)
-                  | BoolVal(b1) => (case v2 of
-                                    BoolVal(b2) => b1 = b2
-                                    | _ => false)
-                  | IntVal(i1) => (case v2 of
-                                 IntVal(i2) => i1 = i2
-                                 | _ => false)
-                  
-                  fun less(v1: value, v2:value) = 
+                  fun isEqual(v1:value, v2:value):bool =
                      case v1 of
                      RatVal(r1) => (case v2 of
-                                    RatVal(r2) => R.less(r1,r2)
+                                    RatVal(r2) => R.equal(r1,r2)
                                     | _ => false)
+                     | BoolVal(b1) => (case v2 of
+                                       BoolVal(b2) => b1 = b2
+                                       | _ => false)
+                     | IntVal(i1) => (case v2 of
+                                    IntVal(i2) => i1 = i2
+                                    | _ => false)
+                     
+                     fun less(v1: value, v2:value) = 
+                        case v1 of
+                        RatVal(r1) => (case v2 of
+                                       RatVal(r2) => R.less(r1,r2)
+                                       | _ => false)
 
-               fun evalBln (b:BoolExp, scopeStack):value =
-                  case b of
-                  TT => BoolVal(true)
-                  | FF => BoolVal(false)
-                  | Unopr_bool(Not, bln) => 
-                     if isEqual(evalBln(bln, scopeStack), BoolVal(true)) then
-                        BoolVal(false)
-                     else
-                        BoolVal(true)
-                  | Binopr_bool(And, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) andalso isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
-                  | Binopr_bool(Or, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) orelse isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
-                  | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
-                  | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
-                  | relationalOpr(Lt, exp1, exp2) => BoolVal(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
-                  | relationalOpr(Gt, exp1, exp2) => BoolVal(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack)))
-                  | relationalOpr(Leq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack))))
-                  | relationalOpr(Geq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
+                  fun evalBln (b:BoolExp, scopeStack):value =
+                     case b of
+                     TT => BoolVal(true)
+                     | FF => BoolVal(false)
+                     | Unopr_bool(Not, bln) => 
+                        if isEqual(evalBln(bln, scopeStack), BoolVal(true)) then
+                           BoolVal(false)
+                        else
+                           BoolVal(true)
+                     | Binopr_bool(And, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) andalso isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
+                     | Binopr_bool(Or, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) orelse isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
+                     | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
+                     | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
+                     | relationalOpr(Lt, exp1, exp2) => BoolVal(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
+                     | relationalOpr(Gt, exp1, exp2) => BoolVal(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack)))
+                     | relationalOpr(Leq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack))))
+                     | relationalOpr(Geq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
 
-            in
-               case expr of
-               RatExp(r) => evalRatExp(r, scopeStack)
-               | BoolExp(b) => evalBln(b, scopeStack)
+               in
+                  case expr of
+                  RatExp(r) => evalRatExp(r, scopeStack)
+                  | BoolExp(b) => evalBln(b, scopeStack)
+                  | IDExp(s) => lookup(s, !scopeStack)
 
-            end
+               end
 
             fun evalIfCmd (If(bln, cmds1, cmds2)) =
                case evalExp(BoolExp(bln), scopeStack) of
@@ -281,12 +282,50 @@ fun evalBlock ((Block(decls,stmts)), scopeStack) =
 
             fun evalPrintCmd(Print(exp)) = printValue(evalExp(exp, scopeStack))
 
+            fun evalCallCmd (Call(s)) = 
+               case lookup(s, !scopeStack) of
+               ProcVal(b) => evalBlock(b, scopeStack)
+               | _ => raise Fail("Type mismatch: " ^ s ^ " is not a procedure")
+            
+            fun evalReadCmd (Read(s)) = 
+               let
+                  val a = valOf (TextIO.inputLine TextIO.stdIn)
+                  val b = String.substring(a, 0, String.size(a) - 1)
+                  val c = String.explode b
+                  val d = ref "";
+                  val e = ref "";
+                  val isD = ref true;
+                  fun addChar(c:char) = 
+                     if c = #"/" then
+                        isD := false
+                     else if !isD then
+                        d := !d ^ Char.toString c
+                     else
+                        e := !e ^ Char.toString c
+                  fun addChars(cs) =
+                     case cs of
+                     [] => ()
+                     | c::cs' => (addChar(c); addChars(cs'))
+                  
+               in
+                  addChars(c);
+                  if (!d) = "tt" andalso (!e) = "" then
+                     update(s, BoolVal(true), scopeStack)
+                  else if (!d) = "ff" andalso (!e) = "" then
+                     update(s, BoolVal(false), scopeStack)
+                  else
+                     update(s, RatVal(valOf(R.make_rat(Bigint.make_bigint(!d), Bigint.make_bigint(!e)))), scopeStack)
+               end
+
+
             fun evalCmd(cmdarg, scopeStack) = 
                case cmdarg of
                assignCmd(Assign(s, exp)) => addSymbol(s, Rat, evalExp(exp, scopeStack), scopeStack)
                | ifCmd(ifCmdarg) => evalIfCmd(ifCmdarg)
                | whileCmd(whileCmdarg) => evalWhileCmd(whileCmdarg)
                | printCmd(printCmdarg) => evalPrintCmd(printCmdarg)
+               | callCmd(callCmdarg) => evalCallCmd(callCmdarg)
+               | readCmd(readCmdarg) => evalReadCmd(readCmdarg)
 
          in
             case cs of
@@ -298,7 +337,8 @@ fun evalBlock ((Block(decls,stmts)), scopeStack) =
    in
       newScope(scopeStack);
       defineDecls(decls,scopeStack);
-      printScopeStack(scopeStack)
+      evalCmds(stmts, scopeStack)
+      (* printScopeStack(scopeStack) *)
    end
 
 

@@ -1,30 +1,9 @@
-rational a, b, c;
-integer i, j, k;
-boolean x, y, z;
-integer d, e, f;
-
-procedure p1
-rational a, b, c;
-integer i, j, k;
-boolean x, y, z;
-integer d, e, f;
-
-procedure p2 {};
-(*hello world!! *)
+rational a;
+boolean b;
 {
-
-};
-
-{
-if tt || ff then 
-   a := 2;
-else 
-   a := 3;
-fi;
-
-while tt do 
-   a := 2;
-od;
-
+   read(a);
+   read(b);
+   print(a);
+   print(b);
 }
 
