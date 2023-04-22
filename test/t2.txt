@@ -1,0 +1,1 @@
+AST.evalCmds(AST.command(AST.ifCmd(AST.If(AST.TT, AST.command(AST.printCmd(AST.Print(AST.BoolExp(AST.TT)))), AST.command(AST.printCmd(AST.Print(AST.BoolExp(AST.FF))))))), AST.scopeStack);

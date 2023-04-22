@@ -52,6 +52,7 @@ and relational_op = Eq | Neq | Lt | Gt | Leq | Geq
 
 and RatExp = Int of R.rational
 | Binopr of binop * RatExp * RatExp
+| RatVarExp of string
 
 and binop = Add | Sub | Mul | Div 
 
@@ -180,7 +181,11 @@ fun defineDecls (decls, scopeStack) =
       defineDecls'(decls)
    end
 
-fun evalStmt(stmt, scopeStack) = "howdy"
+
+fun printValue(v:value) = case v of
+   RatVal(r) => print(R.showRat(r)^"\n")
+   | BoolVal(b) => if b then print("true\n") else print("false\n")
+
 
 
 fun printScopeStack (scopeStack) =
@@ -209,98 +214,87 @@ fun printScopeStack (scopeStack) =
       | scope::scopes => (printScope(scope); printScopeStack(ref scopes))
    end
 
-
-
-
-fun isEqual(v1:value, v2:value):bool =
-   case v1 of
-   RatVal(r1) => (case v2 of
-                  RatVal(r2) => R.equal(r1,r2)
-                  | _ => false)
-   | BoolVal(b1) => (case v2 of
-                     BoolVal(b2) => b1 = b2
-                     | _ => false)
-   | IntVal(i1) => (case v2 of
-                    IntVal(i2) => i1 = i2
-                    | _ => false)
-
-
-fun evalBln (b:BoolExp, scopeStack):value =
-   case b of
-   TT => BoolVal(true)
-   | FF => BoolVal(false)
-   | Unopr_bool(Not, bln) => 
-      if isEqual(evalBln(bln, scopeStack), BoolVal(true)) then
-         BoolVal(false)
-      else
-         BoolVal(true)
-   | Binopr_bool(And, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) andalso isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
-   | Binopr_bool(Or, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) orelse isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
-   (* | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(evalExp(exp1, scopeStack), evalExp(exp2, scopeStack)))
-   | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(evalExp(exp1, scopeStack), evalExp(exp2, scopeStack)))) *)
-
-
-
-
 fun evalBlock ((Block(decls,stmts)), scopeStack) =
    let
-      fun evalBln (b, scopeStack) =
-         case b of
-         TT => BoolVal(true)
-         | FF => BoolVal(false)
-         | Unopr_bool(Not, bln) => case evalBln(bln, scopeStack) of
-                                    BoolVal(true) => BoolVal(false)
-                                    | BoolVal(false) => BoolVal(true)
-                                    | _ => raise Fail("Type mismatch")
-         (* | Binopr_bool(And, bln1, bln2) => case (evalBln(bln1, scopeStack), evalBln(bln2, scopeStack)) of
-                                    (BoolVal(true), BoolVal(true)) => BoolVal(true)
-                                    | _ => BoolVal(false)
-         | Binopr_bool(Or, bln1, bln2) => case (evalBln(bln1, scopeStack), evalBln(bln2, scopeStack)) of
-                                    (BoolVal(false), BoolVal(false)) => BoolVal(false)
-                                    | _ => BoolVal(true) *)
-         (* | relationalOpr(Eq, e1, e2) => case (evalExpr(e1, scopeStack), evalExpr(e2, scopeStack)) of
-                                    (RatVal(r1), RatVal(r2)) => BoolVal(R.eq(r1,r2))
-                                    | (IntVal(i1), IntVal(i2)) => BoolVal(i1 = i2)
-                                    | (BoolVal(b1), BoolVal(b2)) => BoolVal(b1 = b2)
-                                    | _ => raise Fail("Type mismatch")
-         | relationalOpr(Neq, e1, e2) => case (evalExpr(e1, scopeStack), evalExpr(e2, scopeStack)) of
-                                    (RatVal(r1), RatVal(r2)) => BoolVal(not(R.eq(r1,r2)))
-                                    | (IntVal(i1), IntVal(i2)) => BoolVal(not(i1 = i2))
-                                    | (BoolVal(b1), BoolVal(b2)) => BoolVal(not(b1 = b2))
-                                    | _ => raise Fail("Type mismatch")
-         | relationalOpr(Lt, e1, e2) => case (evalExpr(e1, scopeStack), evalExpr(e2, scopeStack)) of
-                                    (RatVal(r1), RatVal(r2)) => BoolVal(R.lt(r1,r2))
-                                    | (IntVal(i1), IntVal(i2)) => BoolVal(i1 < i2)
-                                    | _ => raise Fail("Type mismatch")
-         | relationalOpr(Gt, e1, e2) => case (evalExpr(e1, scopeStack), evalExpr(e2, scopeStack)) of
-                                    (RatVal(r1), RatVal(r2)) => BoolVal(R.gt(r1,r2))
-                                    | (IntVal(i1), IntVal(i2)) => BoolVal(i1 > i2)
-                                    | _ => raise Fail("Type mismatch")
-         | relationalOpr(Leq, e1, e2) => case (evalExpr(e1, scopeStack), evalExpr(e2, scopeStack)) of
-                                    (RatVal(r1), RatVal(r2)) => BoolVal(R.leq(r1,r2))
-                                    | (IntVal(i1), IntVal(i2)) => BoolVal(i1 <= i2)
-                                    | _ => raise Fail("Type mismatch")
-         | relationalOpr(Geq, e1, e2) => case (evalExpr(e1, scopeStack), evalExpr(e2, scopeStack)) of
-                                    (RatVal(r1), RatVal(r2)) => BoolVal(R.geq(r1,r2))
-                                    | (IntVal(i1), IntVal(i2)) => BoolVal(i1 >= i2)
-                                    | _ => raise Fail("Type mismatch") *)
-   
-   
-      (* fun evalIfCmd (If(bln, cmds1, cmds2)) =
-         case evalBln(bln, scopeStack) of
-         BoolVal(true) => evalCmds(cmds1, scopeStack)
-         | BoolVal(false) => evalCmds(cmds2, scopeStack)
-         | _ => raise Fail("Type mismatch")
-      
-      fun evalWhileCmd(While(bln, cmds)) =
-         case evalBln(bln, scopeStack) of
-         BoolVal(true) => (evalCmds(cmds, scopeStack); evalWhileCmd(While(bln, cmds)))
-         | BoolVal(false) => ()
-         | _ => raise Fail("Type mismatch") *)
+      fun evalCmds(cs, scopeStack) =
+         let
+         fun evalExp(expr, scopeStack) =
+            let
+               fun evalRatExp(r:RatExp, scopeStack):value =
+                  case r of
+                  RatVarExp(s) => lookup(s,!scopeStack)
 
-                                          
+               fun isEqual(v1:value, v2:value):bool =
+                  case v1 of
+                  RatVal(r1) => (case v2 of
+                                 RatVal(r2) => R.equal(r1,r2)
+                                 | _ => false)
+                  | BoolVal(b1) => (case v2 of
+                                    BoolVal(b2) => b1 = b2
+                                    | _ => false)
+                  | IntVal(i1) => (case v2 of
+                                 IntVal(i2) => i1 = i2
+                                 | _ => false)
+                  
+                  fun less(v1: value, v2:value) = 
+                     case v1 of
+                     RatVal(r1) => (case v2 of
+                                    RatVal(r2) => R.less(r1,r2)
+                                    | _ => false)
 
+               fun evalBln (b:BoolExp, scopeStack):value =
+                  case b of
+                  TT => BoolVal(true)
+                  | FF => BoolVal(false)
+                  | Unopr_bool(Not, bln) => 
+                     if isEqual(evalBln(bln, scopeStack), BoolVal(true)) then
+                        BoolVal(false)
+                     else
+                        BoolVal(true)
+                  | Binopr_bool(And, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) andalso isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
+                  | Binopr_bool(Or, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) orelse isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
+                  | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
+                  | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
+                  | relationalOpr(Lt, exp1, exp2) => BoolVal(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
+                  | relationalOpr(Gt, exp1, exp2) => BoolVal(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack)))
+                  | relationalOpr(Leq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack))))
+                  | relationalOpr(Geq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
 
+            in
+               case expr of
+               RatExp(r) => evalRatExp(r, scopeStack)
+               | BoolExp(b) => evalBln(b, scopeStack)
+
+            end
+
+            fun evalIfCmd (If(bln, cmds1, cmds2)) =
+               case evalExp(BoolExp(bln), scopeStack) of
+               BoolVal(true) => evalCmds(cmds1, scopeStack)
+               | BoolVal(false) => evalCmds(cmds2, scopeStack)
+               | _ => raise Fail("Type mismatch")
+            
+            fun evalWhileCmd(While(bln, cmds1)) =
+               case evalExp(BoolExp(bln), scopeStack) of
+               BoolVal(true) => (evalCmds(cmds1, scopeStack); evalWhileCmd(While(bln, cmds1)))
+               | BoolVal(false) => ()
+               | _ => raise Fail("Type mismatch")
+
+            fun evalPrintCmd(Print(exp)) = printValue(evalExp(exp, scopeStack))
+
+            fun evalCmd(cmdarg, scopeStack) = 
+               case cmdarg of
+               assignCmd(Assign(s, exp)) => addSymbol(s, Rat, evalExp(exp, scopeStack), scopeStack)
+               | ifCmd(ifCmdarg) => evalIfCmd(ifCmdarg)
+               | whileCmd(whileCmdarg) => evalWhileCmd(whileCmdarg)
+               | printCmd(printCmdarg) => evalPrintCmd(printCmdarg)
+
+         in
+            case cs of
+            cmds(cmd, cmds') => (evalCmd(cmd, scopeStack); evalCmds(cmds', scopeStack))
+            | command(cmd) => evalCmd(cmd, scopeStack)
+            | emptyCmds => ()
+         end
+                              
    in
       newScope(scopeStack);
       defineDecls(decls,scopeStack);
