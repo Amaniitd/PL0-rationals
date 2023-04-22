@@ -1,6 +1,7 @@
-rational a;
+rational a,b;
 
 {
    read(a);
-   print(a);
+   read(b);
+   print(a+b);
 }

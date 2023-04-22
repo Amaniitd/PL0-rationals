@@ -40,7 +40,7 @@ and printCmd = Print of exp
 and ifCmd = If of BoolExp * cmds * cmds
 and whileCmd = While of BoolExp * cmds
 
-and exp = RatExp of RatExp | BoolExp of BoolExp | IDExp of string
+and exp = RatExp of RatExp | BoolExp of BoolExp 
 
 and BoolExp = TT | FF | Unopr_bool of unop_bool * BoolExp
 | Binopr_bool of binop_bool * BoolExp * BoolExp
@@ -53,6 +53,9 @@ and relational_op = Eq | Neq | Lt | Gt | Leq | Geq
 and RatExp = Int of R.rational
 | Binopr of binop * RatExp * RatExp
 | RatVarExp of string
+| UnRatOpr of unoprat * RatExp
+
+and unoprat = Inverse 
 
 and binop = Add | Sub | Mul | Div 
 
@@ -96,6 +99,7 @@ fun update(s:string, v:value, scopeStack) =
          | BoolVal(b) => Bool
          | IntVal(i) => IntT
          | ProcVal(b) => Proc
+
       fun checkType (s:string, v:value, scope:stable) =
          case scope of
          symbols(Symbol(s',t,v'),scope') => if s = s' then if t = typeOf(v) then true else raise Fail("Type mismatch") else checkType(s,v,scope')
@@ -214,15 +218,36 @@ fun printScopeStack (scopeStack) =
       | scope::scopes => (printScope(scope); printScopeStack(ref scopes))
    end
 
+fun cast_Rat (v:value) =
+   case v of
+   RatVal(r) => r
+   | BoolVal(b) => raise Fail("Cannot cast Bool to Rat")
+   | IntVal(i) => raise Fail("Cannot cast Int to Rat")
+   | ProcVal(b) => raise Fail("Cannot cast Proc to Rat")
+
+fun cast_Bool (v:value) =
+   case v of
+   RatVal(r) => raise Fail("Cannot cast Rat to Bool")
+   | BoolVal(b) => b
+   | IntVal(i) => raise Fail("Cannot cast Int to Bool")
+   | ProcVal(b) => raise Fail("Cannot cast Proc to Bool")
+
+
 fun evalBlock ((Block(decls,stmts)), scopeStack) =
    let
       fun evalCmds(cs, scopeStack) =
          let
             fun evalExp(expr, scopeStack) =
                let
-                  fun evalRatExp(r:RatExp, scopeStack):value =
+                  fun evalRatExp(r:RatExp, scopeStack):R.rational =
                      case r of
-                     RatVarExp(s) => lookup(s,!scopeStack)
+                     RatVarExp(s) => cast_Rat(lookup(s,!scopeStack))
+                     | Binopr(Add, r1, r2) => R.add(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack))
+                     | Binopr(Sub, r1, r2) => R.subtract(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack))
+                     | Binopr(Mul, r1, r2) => R.multiply(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack))
+                     | Binopr(Div, r1, r2) => valOf(R.divide(evalRatExp(r1,scopeStack),evalRatExp(r2,scopeStack)))
+                     | UnRatOpr(Neg, r1) => R.neg(evalRatExp(r1,scopeStack))
+
 
                   fun isEqual(v1:value, v2:value):bool =
                      case v1 of
@@ -253,19 +278,16 @@ fun evalBlock ((Block(decls,stmts)), scopeStack) =
                            BoolVal(true)
                      | Binopr_bool(And, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) andalso isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
                      | Binopr_bool(Or, bln1, bln2) => BoolVal(isEqual(evalBln(bln1, scopeStack), BoolVal(true)) orelse isEqual(evalBln(bln2, scopeStack), BoolVal(true)))
-                     | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
-                     | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
-                     | relationalOpr(Lt, exp1, exp2) => BoolVal(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack)))
-                     | relationalOpr(Gt, exp1, exp2) => BoolVal(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack)))
-                     | relationalOpr(Leq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp2, scopeStack), evalRatExp(exp1, scopeStack))))
-                     | relationalOpr(Geq, exp1, exp2) => BoolVal(not(less(evalRatExp(exp1, scopeStack), evalRatExp(exp2, scopeStack))))
-
+                     | relationalOpr(Eq, exp1, exp2) => BoolVal(isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
+                     | relationalOpr(Neq, exp1, exp2) => BoolVal(not(isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack)))))
+                     | relationalOpr(Lt, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
+                     | relationalOpr(Gt, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp2, scopeStack)), RatVal(evalRatExp(exp1, scopeStack))))
+                     | relationalOpr(Leq, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))) orelse isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
+                     | relationalOpr(Geq, exp1, exp2) => BoolVal(less(RatVal(evalRatExp(exp2, scopeStack)), RatVal(evalRatExp(exp1, scopeStack))) orelse isEqual(RatVal(evalRatExp(exp1, scopeStack)), RatVal(evalRatExp(exp2, scopeStack))))
                in
                   case expr of
-                  RatExp(r) => evalRatExp(r, scopeStack)
+                  RatExp(r) => RatVal(evalRatExp(r, scopeStack))
                   | BoolExp(b) => evalBln(b, scopeStack)
-                  | IDExp(s) => lookup(s, !scopeStack)
-
                end
 
             fun evalIfCmd (If(bln, cmds1, cmds2)) =

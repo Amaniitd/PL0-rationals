@@ -1,9 +1,6 @@
-rational a;
+rational a,c;
 boolean b;
 {
-   read(a);
-   read(b);
-   print(a);
-   print(b);
+   a:= inverse c;
 }
 

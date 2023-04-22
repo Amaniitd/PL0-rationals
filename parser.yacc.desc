@@ -8,7 +8,7 @@ state 0:
 	BOOLEAN	shift 6
 	PROCEDURE	shift 5
 
-	Start	goto 97
+	Start	goto 99
 	Block	goto 4
 	DeclSeq	goto 3
 	procDecls	goto 2
@@ -263,10 +263,12 @@ state 22:
 
 	Cmd : WHILE . BoolExp DO Cmds OD 
 
-	INT	shift 45
-	TT	shift 44
-	FF	shift 43
-	NOT	shift 42
+	INT	shift 47
+	TT	shift 46
+	FF	shift 45
+	NOT	shift 44
+	ID	shift 43
+	INVERSE	shift 42
 
 	BoolExp	goto 41
 	RatExp	goto 40
@@ -289,12 +291,14 @@ state 24:
 
 	Cmd : IF . BoolExp THEN Cmds ELSE Cmds FI 
 
-	INT	shift 45
-	TT	shift 44
-	FF	shift 43
-	NOT	shift 42
+	INT	shift 47
+	TT	shift 46
+	FF	shift 45
+	NOT	shift 44
+	ID	shift 43
+	INVERSE	shift 42
 
-	BoolExp	goto 46
+	BoolExp	goto 48
 	RatExp	goto 40
 	Term	goto 39
 	Unit	goto 38
@@ -306,7 +310,7 @@ state 25:
 
 	Cmd : PRINT . LPAREN Exp RPAREN 
 
-	LPAREN	shift 47
+	LPAREN	shift 49
 
 
 	.	error
@@ -316,7 +320,7 @@ state 26:
 
 	Cmd : READ . LPAREN ID RPAREN 
 
-	LPAREN	shift 48
+	LPAREN	shift 50
 
 
 	.	error
@@ -326,7 +330,7 @@ state 27:
 
 	Cmd : CALL . ID 
 
-	ID	shift 49
+	ID	shift 51
 
 
 	.	error
@@ -336,7 +340,7 @@ state 28:
 
 	Cmd : ID . ASSIGN Exp 
 
-	ASSIGN	shift 50
+	ASSIGN	shift 52
 
 
 	.	error
@@ -346,7 +350,7 @@ state 29:
 
 	procDecls : PROCEDURE ID Block . SEMICOLON 
 
-	SEMICOLON	shift 51
+	SEMICOLON	shift 53
 
 
 	.	error
@@ -367,7 +371,7 @@ state 31:
 
 	ID	shift 15
 
-	BoolVars	goto 52
+	BoolVars	goto 54
 
 	.	error
 
@@ -387,7 +391,7 @@ state 33:
 
 	ID	shift 17
 
-	IntVars	goto 53
+	IntVars	goto 55
 
 	.	error
 
@@ -407,7 +411,7 @@ state 35:
 
 	ID	shift 19
 
-	RatVars	goto 54
+	RatVars	goto 56
 
 	.	error
 
@@ -424,7 +428,7 @@ state 36:
 	IF	shift 24
 	WHILE	shift 22
 
-	Cmds	goto 55
+	Cmds	goto 57
 	Cmd	goto 20
 
 	.	reduce by rule 18
@@ -454,8 +458,8 @@ state 39:
 	Term : Term . MUL Unit 
 	Term : Term . DIV Unit 
 
-	MUL	shift 57
-	DIV	shift 56
+	MUL	shift 59
+	DIV	shift 58
 
 
 	.	reduce by rule 41
@@ -472,14 +476,14 @@ state 40:
 	RatExp : RatExp . ADD Term 
 	RatExp : RatExp . SUB Term 
 
-	ADD	shift 65
-	SUB	shift 64
-	EQ	shift 63
-	NEQ	shift 62
-	LT	shift 61
-	GT	shift 60
-	LEQ	shift 59
-	GEQ	shift 58
+	ADD	shift 67
+	SUB	shift 66
+	EQ	shift 65
+	NEQ	shift 64
+	LT	shift 63
+	GT	shift 62
+	LEQ	shift 61
+	GEQ	shift 60
 
 
 	.	error
@@ -491,9 +495,9 @@ state 41:
 	BoolExp : BoolExp . OR BoolExp 
 	BoolExp : BoolExp . AND BoolExp 
 
-	OR	shift 68
-	AND	shift 67
-	DO	shift 66
+	OR	shift 70
+	AND	shift 69
+	DO	shift 68
 
 
 	.	error
@@ -501,15 +505,13 @@ state 41:
 
 state 42:
 
-	BoolExp : NOT . BoolExp 
+	RatExp : INVERSE . RatExp 
 
-	INT	shift 45
-	TT	shift 44
-	FF	shift 43
-	NOT	shift 42
+	INT	shift 47
+	ID	shift 43
+	INVERSE	shift 42
 
-	BoolExp	goto 69
-	RatExp	goto 40
+	RatExp	goto 71
 	Term	goto 39
 	Unit	goto 38
 
@@ -518,23 +520,51 @@ state 42:
 
 state 43:
 
-	BoolExp : FF .  (reduce by rule 29)
+	Unit : ID .  (reduce by rule 46)
 
 
 
-	.	reduce by rule 29
+	.	reduce by rule 46
 
 
 state 44:
 
-	BoolExp : TT .  (reduce by rule 28)
+	BoolExp : NOT . BoolExp 
+
+	INT	shift 47
+	TT	shift 46
+	FF	shift 45
+	NOT	shift 44
+	ID	shift 43
+	INVERSE	shift 42
+
+	BoolExp	goto 72
+	RatExp	goto 40
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
+state 45:
+
+	BoolExp : FF .  (reduce by rule 28)
 
 
 
 	.	reduce by rule 28
 
 
-state 45:
+state 46:
+
+	BoolExp : TT .  (reduce by rule 27)
+
+
+
+	.	reduce by rule 27
+
+
+state 47:
 
 	Unit : INT .  (reduce by rule 45)
 
@@ -543,50 +573,51 @@ state 45:
 	.	reduce by rule 45
 
 
-state 46:
+state 48:
 
 	Cmd : IF BoolExp . THEN Cmds ELSE Cmds FI 
 	BoolExp : BoolExp . OR BoolExp 
 	BoolExp : BoolExp . AND BoolExp 
 
-	OR	shift 68
-	AND	shift 67
-	THEN	shift 70
-
-
-	.	error
-
-
-state 47:
-
-	Cmd : PRINT LPAREN . Exp RPAREN 
-
-	INT	shift 45
-	TT	shift 44
-	FF	shift 43
-	NOT	shift 42
-	ID	shift 74
-
-	Exp	goto 73
-	BoolExp	goto 72
-	RatExp	goto 71
-	Term	goto 39
-	Unit	goto 38
-
-	.	error
-
-
-state 48:
-
-	Cmd : READ LPAREN . ID RPAREN 
-
-	ID	shift 75
+	OR	shift 70
+	AND	shift 69
+	THEN	shift 73
 
 
 	.	error
 
 
 state 49:
+
+	Cmd : PRINT LPAREN . Exp RPAREN 
+
+	INT	shift 47
+	TT	shift 46
+	FF	shift 45
+	NOT	shift 44
+	ID	shift 43
+	INVERSE	shift 42
+
+	Exp	goto 76
+	BoolExp	goto 75
+	RatExp	goto 74
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
+state 50:
+
+	Cmd : READ LPAREN . ID RPAREN 
+
+	ID	shift 77
+
+
+	.	error
+
+
+state 51:
 
 	Cmd : CALL ID .  (reduce by rule 20)
 
@@ -595,26 +626,27 @@ state 49:
 	.	reduce by rule 20
 
 
-state 50:
+state 52:
 
 	Cmd : ID ASSIGN . Exp 
 
-	INT	shift 45
-	TT	shift 44
-	FF	shift 43
-	NOT	shift 42
-	ID	shift 74
+	INT	shift 47
+	TT	shift 46
+	FF	shift 45
+	NOT	shift 44
+	ID	shift 43
+	INVERSE	shift 42
 
-	Exp	goto 76
-	BoolExp	goto 72
-	RatExp	goto 71
+	Exp	goto 78
+	BoolExp	goto 75
+	RatExp	goto 74
 	Term	goto 39
 	Unit	goto 38
 
 	.	error
 
 
-state 51:
+state 53:
 
 	procDecls : PROCEDURE ID Block SEMICOLON .  (reduce by rule 5)
 
@@ -623,7 +655,7 @@ state 51:
 	.	reduce by rule 5
 
 
-state 52:
+state 54:
 
 	BoolVars : ID COMMA BoolVars .  (reduce by rule 11)
 
@@ -632,7 +664,7 @@ state 52:
 	.	reduce by rule 11
 
 
-state 53:
+state 55:
 
 	IntVars : ID COMMA IntVars .  (reduce by rule 13)
 
@@ -641,7 +673,7 @@ state 53:
 	.	reduce by rule 13
 
 
-state 54:
+state 56:
 
 	RatVars : ID COMMA RatVars .  (reduce by rule 9)
 
@@ -650,7 +682,7 @@ state 54:
 	.	reduce by rule 9
 
 
-state 55:
+state 57:
 
 	Cmds : Cmd SEMICOLON Cmds .  (reduce by rule 17)
 
@@ -659,59 +691,37 @@ state 55:
 	.	reduce by rule 17
 
 
-state 56:
+state 58:
 
 	Term : Term DIV . Unit 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
 
-	Unit	goto 77
-
-	.	error
-
-
-state 57:
-
-	Term : Term MUL . Unit 
-
-	INT	shift 45
-
-	Unit	goto 78
-
-	.	error
-
-
-state 58:
-
-	BoolExp : RatExp GEQ . RatExp 
-
-	INT	shift 45
-
-	RatExp	goto 79
-	Term	goto 39
-	Unit	goto 38
+	Unit	goto 79
 
 	.	error
 
 
 state 59:
 
-	BoolExp : RatExp LEQ . RatExp 
+	Term : Term MUL . Unit 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
 
-	RatExp	goto 80
-	Term	goto 39
-	Unit	goto 38
+	Unit	goto 80
 
 	.	error
 
 
 state 60:
 
-	BoolExp : RatExp GT . RatExp 
+	BoolExp : RatExp GEQ . RatExp 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
+	INVERSE	shift 42
 
 	RatExp	goto 81
 	Term	goto 39
@@ -722,9 +732,11 @@ state 60:
 
 state 61:
 
-	BoolExp : RatExp LT . RatExp 
+	BoolExp : RatExp LEQ . RatExp 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
+	INVERSE	shift 42
 
 	RatExp	goto 82
 	Term	goto 39
@@ -735,9 +747,11 @@ state 61:
 
 state 62:
 
-	BoolExp : RatExp NEQ . RatExp 
+	BoolExp : RatExp GT . RatExp 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
+	INVERSE	shift 42
 
 	RatExp	goto 83
 	Term	goto 39
@@ -748,9 +762,11 @@ state 62:
 
 state 63:
 
-	BoolExp : RatExp EQ . RatExp 
+	BoolExp : RatExp LT . RatExp 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
+	INVERSE	shift 42
 
 	RatExp	goto 84
 	Term	goto 39
@@ -761,11 +777,14 @@ state 63:
 
 state 64:
 
-	RatExp : RatExp SUB . Term 
+	BoolExp : RatExp NEQ . RatExp 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
+	INVERSE	shift 42
 
-	Term	goto 85
+	RatExp	goto 85
+	Term	goto 39
 	Unit	goto 38
 
 	.	error
@@ -773,17 +792,46 @@ state 64:
 
 state 65:
 
-	RatExp : RatExp ADD . Term 
+	BoolExp : RatExp EQ . RatExp 
 
-	INT	shift 45
+	INT	shift 47
+	ID	shift 43
+	INVERSE	shift 42
 
-	Term	goto 86
+	RatExp	goto 86
+	Term	goto 39
 	Unit	goto 38
 
 	.	error
 
 
 state 66:
+
+	RatExp : RatExp SUB . Term 
+
+	INT	shift 47
+	ID	shift 43
+
+	Term	goto 87
+	Unit	goto 38
+
+	.	error
+
+
+state 67:
+
+	RatExp : RatExp ADD . Term 
+
+	INT	shift 47
+	ID	shift 43
+
+	Term	goto 88
+	Unit	goto 38
+
+	.	error
+
+
+state 68:
 
 	Cmd : WHILE BoolExp DO . Cmds OD 
 
@@ -794,58 +842,73 @@ state 66:
 	IF	shift 24
 	WHILE	shift 22
 
-	Cmds	goto 87
+	Cmds	goto 89
 	Cmd	goto 20
-
-	.	error
-
-
-state 67:
-
-	BoolExp : BoolExp AND . BoolExp 
-
-	INT	shift 45
-	TT	shift 44
-	FF	shift 43
-	NOT	shift 42
-
-	BoolExp	goto 88
-	RatExp	goto 40
-	Term	goto 39
-	Unit	goto 38
-
-	.	error
-
-
-state 68:
-
-	BoolExp : BoolExp OR . BoolExp 
-
-	INT	shift 45
-	TT	shift 44
-	FF	shift 43
-	NOT	shift 42
-
-	BoolExp	goto 89
-	RatExp	goto 40
-	Term	goto 39
-	Unit	goto 38
 
 	.	error
 
 
 state 69:
 
-	BoolExp : BoolExp . OR BoolExp 
-	BoolExp : BoolExp . AND BoolExp 
-	BoolExp : NOT BoolExp .  (reduce by rule 32)
+	BoolExp : BoolExp AND . BoolExp 
 
+	INT	shift 47
+	TT	shift 46
+	FF	shift 45
+	NOT	shift 44
+	ID	shift 43
+	INVERSE	shift 42
 
+	BoolExp	goto 90
+	RatExp	goto 40
+	Term	goto 39
+	Unit	goto 38
 
-	.	reduce by rule 32
+	.	error
 
 
 state 70:
+
+	BoolExp : BoolExp OR . BoolExp 
+
+	INT	shift 47
+	TT	shift 46
+	FF	shift 45
+	NOT	shift 44
+	ID	shift 43
+	INVERSE	shift 42
+
+	BoolExp	goto 91
+	RatExp	goto 40
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
+state 71:
+
+	RatExp : RatExp . ADD Term 
+	RatExp : RatExp . SUB Term 
+	RatExp : INVERSE RatExp .  (reduce by rule 40)
+
+
+
+	.	reduce by rule 40
+
+
+state 72:
+
+	BoolExp : BoolExp . OR BoolExp 
+	BoolExp : BoolExp . AND BoolExp 
+	BoolExp : NOT BoolExp .  (reduce by rule 31)
+
+
+
+	.	reduce by rule 31
+
+
+state 73:
 
 	Cmd : IF BoolExp THEN . Cmds ELSE Cmds FI 
 
@@ -856,13 +919,13 @@ state 70:
 	IF	shift 24
 	WHILE	shift 22
 
-	Cmds	goto 90
+	Cmds	goto 92
 	Cmd	goto 20
 
 	.	error
 
 
-state 71:
+state 74:
 
 	Exp : RatExp .  (reduce by rule 26)
 	BoolExp : RatExp . EQ RatExp 
@@ -874,62 +937,53 @@ state 71:
 	RatExp : RatExp . ADD Term 
 	RatExp : RatExp . SUB Term 
 
-	ADD	shift 65
-	SUB	shift 64
-	EQ	shift 63
-	NEQ	shift 62
-	LT	shift 61
-	GT	shift 60
-	LEQ	shift 59
-	GEQ	shift 58
+	ADD	shift 67
+	SUB	shift 66
+	EQ	shift 65
+	NEQ	shift 64
+	LT	shift 63
+	GT	shift 62
+	LEQ	shift 61
+	GEQ	shift 60
 
 
 	.	reduce by rule 26
 
 
-state 72:
+state 75:
 
 	Exp : BoolExp .  (reduce by rule 25)
 	BoolExp : BoolExp . OR BoolExp 
 	BoolExp : BoolExp . AND BoolExp 
 
-	OR	shift 68
-	AND	shift 67
+	OR	shift 70
+	AND	shift 69
 
 
 	.	reduce by rule 25
 
 
-state 73:
+state 76:
 
 	Cmd : PRINT LPAREN Exp . RPAREN 
 
-	RPAREN	shift 91
+	RPAREN	shift 93
 
 
 	.	error
 
 
-state 74:
-
-	Exp : ID .  (reduce by rule 27)
-
-
-
-	.	reduce by rule 27
-
-
-state 75:
+state 77:
 
 	Cmd : READ LPAREN ID . RPAREN 
 
-	RPAREN	shift 92
+	RPAREN	shift 94
 
 
 	.	error
 
 
-state 76:
+state 78:
 
 	Cmd : ID ASSIGN Exp .  (reduce by rule 19)
 
@@ -938,7 +992,7 @@ state 76:
 	.	reduce by rule 19
 
 
-state 77:
+state 79:
 
 	Term : Term DIV Unit .  (reduce by rule 43)
 
@@ -947,7 +1001,7 @@ state 77:
 	.	reduce by rule 43
 
 
-state 78:
+state 80:
 
 	Term : Term MUL Unit .  (reduce by rule 42)
 
@@ -956,153 +1010,153 @@ state 78:
 	.	reduce by rule 42
 
 
-state 79:
+state 81:
 
-	BoolExp : RatExp GEQ RatExp .  (reduce by rule 38)
+	BoolExp : RatExp GEQ RatExp .  (reduce by rule 37)
 	RatExp : RatExp . ADD Term 
 	RatExp : RatExp . SUB Term 
 
-	ADD	shift 65
-	SUB	shift 64
-
-
-	.	reduce by rule 38
-
-
-state 80:
-
-	BoolExp : RatExp LEQ RatExp .  (reduce by rule 37)
-	RatExp : RatExp . ADD Term 
-	RatExp : RatExp . SUB Term 
-
-	ADD	shift 65
-	SUB	shift 64
+	ADD	shift 67
+	SUB	shift 66
 
 
 	.	reduce by rule 37
 
 
-state 81:
+state 82:
 
-	BoolExp : RatExp GT RatExp .  (reduce by rule 36)
+	BoolExp : RatExp LEQ RatExp .  (reduce by rule 36)
 	RatExp : RatExp . ADD Term 
 	RatExp : RatExp . SUB Term 
 
-	ADD	shift 65
-	SUB	shift 64
+	ADD	shift 67
+	SUB	shift 66
 
 
 	.	reduce by rule 36
 
 
-state 82:
+state 83:
 
-	BoolExp : RatExp LT RatExp .  (reduce by rule 35)
+	BoolExp : RatExp GT RatExp .  (reduce by rule 35)
 	RatExp : RatExp . ADD Term 
 	RatExp : RatExp . SUB Term 
 
-	ADD	shift 65
-	SUB	shift 64
+	ADD	shift 67
+	SUB	shift 66
 
 
 	.	reduce by rule 35
 
 
-state 83:
+state 84:
 
-	BoolExp : RatExp NEQ RatExp .  (reduce by rule 34)
+	BoolExp : RatExp LT RatExp .  (reduce by rule 34)
 	RatExp : RatExp . ADD Term 
 	RatExp : RatExp . SUB Term 
 
-	ADD	shift 65
-	SUB	shift 64
+	ADD	shift 67
+	SUB	shift 66
 
 
 	.	reduce by rule 34
 
 
-state 84:
+state 85:
 
-	BoolExp : RatExp EQ RatExp .  (reduce by rule 33)
+	BoolExp : RatExp NEQ RatExp .  (reduce by rule 33)
 	RatExp : RatExp . ADD Term 
 	RatExp : RatExp . SUB Term 
 
-	ADD	shift 65
-	SUB	shift 64
+	ADD	shift 67
+	SUB	shift 66
 
 
 	.	reduce by rule 33
 
 
-state 85:
-
-	RatExp : RatExp SUB Term .  (reduce by rule 40)
-	Term : Term . MUL Unit 
-	Term : Term . DIV Unit 
-
-	MUL	shift 57
-	DIV	shift 56
-
-
-	.	reduce by rule 40
-
-
 state 86:
 
-	RatExp : RatExp ADD Term .  (reduce by rule 39)
+	BoolExp : RatExp EQ RatExp .  (reduce by rule 32)
+	RatExp : RatExp . ADD Term 
+	RatExp : RatExp . SUB Term 
+
+	ADD	shift 67
+	SUB	shift 66
+
+
+	.	reduce by rule 32
+
+
+state 87:
+
+	RatExp : RatExp SUB Term .  (reduce by rule 39)
 	Term : Term . MUL Unit 
 	Term : Term . DIV Unit 
 
-	MUL	shift 57
-	DIV	shift 56
+	MUL	shift 59
+	DIV	shift 58
 
 
 	.	reduce by rule 39
 
 
-state 87:
+state 88:
+
+	RatExp : RatExp ADD Term .  (reduce by rule 38)
+	Term : Term . MUL Unit 
+	Term : Term . DIV Unit 
+
+	MUL	shift 59
+	DIV	shift 58
+
+
+	.	reduce by rule 38
+
+
+state 89:
 
 	Cmd : WHILE BoolExp DO Cmds . OD 
 
-	OD	shift 93
+	OD	shift 95
 
 
 	.	error
 
 
-state 88:
+state 90:
 
 	BoolExp : BoolExp . OR BoolExp 
 	BoolExp : BoolExp . AND BoolExp 
-	BoolExp : BoolExp AND BoolExp .  (reduce by rule 31)
-
-
-
-	.	reduce by rule 31
-
-
-state 89:
-
-	BoolExp : BoolExp . OR BoolExp 
-	BoolExp : BoolExp OR BoolExp .  (reduce by rule 30)
-	BoolExp : BoolExp . AND BoolExp 
+	BoolExp : BoolExp AND BoolExp .  (reduce by rule 30)
 
 
 
 	.	reduce by rule 30
 
 
-state 90:
+state 91:
+
+	BoolExp : BoolExp . OR BoolExp 
+	BoolExp : BoolExp OR BoolExp .  (reduce by rule 29)
+	BoolExp : BoolExp . AND BoolExp 
+
+
+
+	.	reduce by rule 29
+
+
+state 92:
 
 	Cmd : IF BoolExp THEN Cmds . ELSE Cmds FI 
 
-	ELSE	shift 94
+	ELSE	shift 96
 
 
 	.	error
 
 
-state 91:
+state 93:
 
 	Cmd : PRINT LPAREN Exp RPAREN .  (reduce by rule 22)
 
@@ -1111,7 +1165,7 @@ state 91:
 	.	reduce by rule 22
 
 
-state 92:
+state 94:
 
 	Cmd : READ LPAREN ID RPAREN .  (reduce by rule 21)
 
@@ -1120,7 +1174,7 @@ state 92:
 	.	reduce by rule 21
 
 
-state 93:
+state 95:
 
 	Cmd : WHILE BoolExp DO Cmds OD .  (reduce by rule 24)
 
@@ -1129,7 +1183,7 @@ state 93:
 	.	reduce by rule 24
 
 
-state 94:
+state 96:
 
 	Cmd : IF BoolExp THEN Cmds ELSE . Cmds FI 
 
@@ -1140,23 +1194,23 @@ state 94:
 	IF	shift 24
 	WHILE	shift 22
 
-	Cmds	goto 95
+	Cmds	goto 97
 	Cmd	goto 20
 
 	.	error
 
 
-state 95:
+state 97:
 
 	Cmd : IF BoolExp THEN Cmds ELSE Cmds . FI 
 
-	FI	shift 96
+	FI	shift 98
 
 
 	.	error
 
 
-state 96:
+state 98:
 
 	Cmd : IF BoolExp THEN Cmds ELSE Cmds FI .  (reduce by rule 23)
 
@@ -1165,7 +1219,7 @@ state 96:
 	.	reduce by rule 23
 
 
-state 97:
+state 99:
 
 
 	EOF	accept
@@ -1173,5 +1227,5 @@ state 97:
 
 	.	error
 
-100 of 255 action table entries left after compaction
-86 goto table entries
+101 of 288 action table entries left after compaction
+89 goto table entries

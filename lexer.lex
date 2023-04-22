@@ -29,7 +29,7 @@ vchar = [0-9A-Za-z];
 "||" => (column := !column + size(yytext); Tokens.OR(!linenum,!column));
 "&&" => (column := !column + size(yytext); Tokens.AND(!linenum,!column));
 "!" => (column := !column + size(yytext); Tokens.NOT(!linenum,!column));
-
+":=" => (column := !column + size(yytext); Tokens.ASSIGN(!linenum,!column));
 "=" => (column := !column + size(yytext); Tokens.EQ(!linenum,!column));
 "<>" => (column := !column + size(yytext); Tokens.NEQ(!linenum,!column));
 "<" => (column := !column + size(yytext); Tokens.LT(!linenum,!column));
@@ -37,8 +37,6 @@ vchar = [0-9A-Za-z];
 ">" => (column := !column + size(yytext); Tokens.GT(!linenum,!column));
 ">=" => (column := !column + size(yytext); Tokens.GEQ(!linenum,!column));
 
-
-":=" => (column := !column + size(yytext); Tokens.ASSIGN(!linenum,!column));
 "call" => (column := !column + size(yytext); Tokens.CALL(!linenum,!column));
 "read" => (column := !column + size(yytext); Tokens.READ(!linenum,!column));
 "print" => (column := !column + size(yytext); Tokens.PRINT(!linenum,!column));
@@ -59,6 +57,8 @@ vchar = [0-9A-Za-z];
 
 "procedure" => (column := !column + size(yytext); Tokens.PROCEDURE(!linenum,!column));
 
+
+"inverse" => (column := !column + size(yytext); Tokens.INVERSE(!linenum,!column));
 
 ";" => (column := !column + size(yytext); Tokens.SEMICOLON(!linenum,!column));
 "," => (column := !column + size(yytext); Tokens.COMMA(!linenum,!column));

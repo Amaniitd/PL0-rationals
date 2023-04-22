@@ -8,7 +8,7 @@
    | ADD | SUB | MUL | DIV | LPAREN | RPAREN | EOF | TT | FF | 
    OR | AND | NOT | EQ | NEQ | LT | GT | LEQ | GEQ | ASSIGN | ID of string | CALL
    | READ | PRINT | IF | THEN | ELSE | FI | LBRACE | RBRACE | SEMICOLON
-   | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN | PROCEDURE
+   | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN | PROCEDURE | INVERSE
 
 %nonterm Start of AST.Block
    | Block of AST.Block
@@ -36,6 +36,7 @@
 
 %left OR AND
 %left EQ NEQ LT GT LEQ GEQ
+%left INVERSE
 
 %left NOT
 
@@ -87,7 +88,6 @@ Cmd : ID ASSIGN Exp (AST.assignCmd(AST.Assign(ID, Exp)))
 
 Exp : BoolExp (AST.BoolExp(BoolExp))
    | RatExp (AST.RatExp(RatExp))
-   | ID (AST.IDExp(ID))
 
 BoolExp : TT (AST.TT)
         | FF (AST.FF)
@@ -104,6 +104,7 @@ BoolExp : TT (AST.TT)
 
 RatExp : RatExp ADD Term (AST.Binopr(AST.Add, RatExp , Term))
    | RatExp SUB Term (AST.Binopr(AST.Sub, RatExp , Term))
+   | INVERSE RatExp (AST.UnRatOpr(AST.Inverse, RatExp))
    | Term (Term)
 
 Term : Term MUL Unit (AST.Binopr(AST.Mul, Term , Unit))
@@ -111,5 +112,7 @@ Term : Term MUL Unit (AST.Binopr(AST.Mul, Term , Unit))
     | Unit (Unit)
    
 Unit : INT (AST.Int (INT))
+       | ID (AST.RatVarExp(ID))
+
 
 
