@@ -9,7 +9,7 @@
    OR | AND | NOT | EQ | NEQ | LT | GT | LEQ | GEQ | ASSIGN | ID of string | CALL
    | READ | PRINT | IF | THEN | ELSE | FI | LBRACE | RBRACE | SEMICOLON
    | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN | PROCEDURE | INVERSE
-   | MOD | MAKERAT | RAT of R.rational | MULR | DIVR
+   | MOD | MAKERAT | RAT of R.rational | MULR | DIVR | ADDR | SUBR
 
 %nonterm Start of AST.Block
    | Block of AST.Block
@@ -30,8 +30,8 @@
 %eop EOF 
 %noshift EOF
 
-%left ADD SUB 
-%left MUL DIV
+%left ADD SUB ADDR  SUBR
+%left MUL DIV MOD MULR DIVR
 
 %left OR AND
 %left EQ NEQ LT GT LEQ GEQ
@@ -98,6 +98,8 @@ Exp : TT (AST.TT)
          | Exp GEQ Exp (AST.relationalOpr(AST.Geq, Exp1, Exp2))
          | Exp ADD Term (AST.Binopr(AST.Add, Exp , Term))
          | Exp SUB Term (AST.Binopr(AST.Sub, Exp , Term))
+         | Exp ADDR Term (AST.BinRatOpr(AST.AddR, Exp , Term))
+         | Exp SUBR Term (AST.BinRatOpr(AST.SubR, Exp , Term))
          | Term (Term)
          | LPAREN Exp RPAREN (Exp)
          | MAKERAT LPAREN Exp COMMA Exp RPAREN (AST.MakeRat(Exp1, Exp2))

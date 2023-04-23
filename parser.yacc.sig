@@ -2,6 +2,8 @@ signature Parser_TOKENS =
 sig
 type ('a,'b) token
 type svalue
+val SUBR:  'a * 'a -> (svalue,'a) token
+val ADDR:  'a * 'a -> (svalue,'a) token
 val DIVR:  'a * 'a -> (svalue,'a) token
 val MULR:  'a * 'a -> (svalue,'a) token
 val RAT: (R.rational) *  'a * 'a -> (svalue,'a) token

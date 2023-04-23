@@ -31,3 +31,26 @@
       <letter> ::= [a-zA-Z]
       <letter-or-digit> ::= <letter> | <digit>
 
+
+## Grammar for program
+      Program ::= Block .
+      Block ::= DeclarationSeq CommandSeq .
+      DeclarationSeq ::= [VarDecls] [ProcDecls] .
+      VarDecls ::= [RatVarDecls] [IntVarDecls] [BoolVarDecls] .
+      RatVarDecls ::= rational Ident {, Ident}; .
+      IntVarDecls ::= integer Ident {, Ident}; .
+      BoolVarDecls ::= boolean Ident {, Ident}; .
+      ProcDecls ::= [P rocDef {;P rocDecls};] .
+      ProcDef ::= procedure Ident Block .
+      CommandSeq ::= {{Command;}} .
+      Command ::= AssignmentCmd | CallCmd | ReadCmd | P rintCmd |
+      ConditionalCmd | W hileCmd .
+      AssignmentCmd ::= Ident := Expression .
+      CallCmd ::= call Ident .
+      ReadCmd ::= read( Ident ) .
+      PrintCmd ::= print( Expression ) .
+      Expression ::= RatExpression | IntExpression | BoolExpression .
+      ConditionalCmd ::= if BoolExpression then CommandSeq else CommandSeq fi .
+      WhileCmd ::= while BoolExpression do CommandSeq od .
+
+

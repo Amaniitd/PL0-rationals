@@ -53,7 +53,7 @@ and exp = TT | FF | Unopr_bool of unop_bool * exp
 | MakeRat of exp * exp
 | BinRatOpr of binratopr * exp * exp
 
-and binratopr = MulR | DivR
+and binratopr = MulR | DivR | AddR | SubR
 
 
 and binop_bool = And | Or 
@@ -343,19 +343,15 @@ fun evalBlock ((Block(decls,stmts))) =
                | _ => raise Fail("Type mismatch"))
             | Binopr(Add, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (IntVal(i1), IntVal(i2)) => IntVal(Bigint.add(i1,i2))
-               | (RatVal(r1), RatVal(r2)) => RatVal(R.add(r1,r2))
                | _ => raise Fail("Type mismatch"))
             | Binopr(Sub, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (IntVal(i1), IntVal(i2)) => IntVal(Bigint.sub(i1,i2))
-               | (RatVal(r1), RatVal(r2)) => RatVal(R.subtract(r1,r2))
                | _ => raise Fail("Type mismatch"))
             | Binopr(Mul, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (IntVal(i1), IntVal(i2)) => IntVal(Bigint.mul(i1,i2))
-               | (RatVal(r1), RatVal(r2)) => RatVal(R.multiply(r1,r2))
                | _ => raise Fail("Type mismatch"))
             | Binopr(Div, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (IntVal(i1), IntVal(i2)) => IntVal(valOf(Bigint.divide(i1,i2)))
-               | (RatVal(r1), RatVal(r2)) => RatVal(valOf(R.divide(r1,r2)))
                | _ => raise Fail("Type mismatch"))
             | Binopr(Mod, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (IntVal(i1), IntVal(i2)) => IntVal(valOf(Bigint.modulo(i1,i2)))
@@ -402,6 +398,12 @@ fun evalBlock ((Block(decls,stmts))) =
             
             | BinRatOpr (DivR, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (RatVal(r1), RatVal(r2)) => RatVal(valOf(R.divide(r1,r2)))
+               | _ => raise Fail("Type mismatch"))
+            | BinRatOpr (AddR, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (RatVal(r1), RatVal(r2)) => RatVal(R.add(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            | BinRatOpr (SubR, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (RatVal(r1), RatVal(r2)) => RatVal(R.subtract(r1,r2))
                | _ => raise Fail("Type mismatch"))
 
 
@@ -474,7 +476,7 @@ fun writeFile filename content =
         val _ = TextIO.closeOut fd
     in () end
 fun eval(blk, outputfile) = 
-   (evalBlock(blk); writeFile outputfile (!program_output))
+   (evalBlock(blk); writeFile outputfile (!program_output); program_output := "")
 
 
 end
