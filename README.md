@@ -54,3 +54,84 @@
       WhileCmd ::= while BoolExpression do CommandSeq od .
 
 
+Program ::= Block .
+
+Block ::= DeclarationSeq CommandSeq .
+
+DeclarationSeq ::= VarDecls ProcDecls | ProcDecls VarDecls | VarDecls | ProcDecls | ε .
+
+VarDecls ::= RatVarDecls IntVarDecls BoolVarDecls | RatVarDecls IntVarDecls | RatVarDecls BoolVarDecls | IntVarDecls BoolVarDecls | RatVarDecls | IntVarDecls | BoolVarDecls | ε .
+
+RatVarDecls ::= rational Ident RatVarDeclsTail ;
+
+RatVarDeclsTail ::= , Ident RatVarDeclsTail | ε .
+
+IntVarDecls ::= integer Ident IntVarDeclsTail ;
+
+IntVarDeclsTail ::= , Ident IntVarDeclsTail | ε .
+
+BoolVarDecls ::= boolean Ident BoolVarDeclsTail ;
+
+BoolVarDeclsTail ::= , Ident BoolVarDeclsTail | ε .
+
+ProcDecls ::= ProcDef ; ProcDecls | ProcDef ; | ε .
+
+ProcDef ::= procedure Ident Block .
+
+CommandSeq ::= { CommandSeqTail } .
+
+CommandSeqTail ::= Command ; CommandSeqTail | ε .
+
+Command ::= AssignmentCmd | CallCmd | ReadCmd | PrintCmd | ConditionalCmd | WhileCmd .
+
+AssignmentCmd ::= Ident := Expression .
+
+CallCmd ::= call Ident .
+
+ReadCmd ::= read ( Ident ) .
+
+PrintCmd ::= print ( Expression ) .
+
+Expression ::= RatExpression | IntExpression | BoolExpression .
+
+RatExpression ::= RatTerm RatExpressionTail .
+
+RatExpressionTail ::= + RatTerm RatExpressionTail | - RatTerm RatExpressionTail | ε .
+
+RatTerm ::= RatFactor RatTermTail .
+
+RatTermTail ::= * RatFactor RatTermTail | / RatFactor RatTermTail | ε .
+
+RatFactor ::= ( RatExpression ) | Ident | RatNumber .
+
+RatNumber ::= Integer | Rational .
+
+BoolExpression ::= BoolTerm BoolExpressionTail .
+
+BoolExpressionTail ::= or BoolTerm BoolExpressionTail | ε .
+
+BoolTerm ::= BoolFactor BoolTermTail .
+
+BoolTermTail ::= and BoolFactor BoolTermTail | ε .
+
+BoolFactor ::= ( BoolExpression ) | not BoolFactor | BoolValue | RelationalExpression .
+
+RelationalExpression ::= RatExpression RelationalOperator RatExpression .
+
+RelationalOperator ::= < | > | <= | >= | = | <> .
+
+IntExpression ::= IntTerm IntExpressionTail .
+
+IntExpressionTail ::= + IntTerm IntExpressionTail | - IntTerm IntExpressionTail | ε .
+
+IntTerm ::= IntFactor IntTermTail .
+
+IntTermTail ::= * IntFactor IntTermTail | / IntFactor IntTermTail | ε .
+
+IntFactor ::= ( IntExpression ) | Ident | IntNumber .
+
+IntNumber ::= Integer .
+
+Boolean ::= tt | ff .
+
+
