@@ -2,7 +2,7 @@
 
 ## Grammar for rational numbers
 
-      <rational> ::= <whole> "/" <positive> | <decimal>
+      <rational> ::= <whole> "/" <positive> | <decimal> | LB <rational> RB
       <decimal> ::= <integer> "." <whole>
       <integer> ::= <whole> | "~" <whole>
       <whole> ::= <digit>+
@@ -30,27 +30,4 @@
       <variable> ::= <letter> <letter-or-digit>*
       <letter> ::= [a-zA-Z]
       <letter-or-digit> ::= <letter> | <digit>
-
-Note: To separate division from rational numbers, we can use the token " / " instead of "/".
-
-Codebase:
-bigint.sml - Big integer arithmetic
-rational.sml - Rational number arithmetic
-(I have not yet implemented showDecimal/toDecimal)
-
-CLI:
-run loader.sml to load the codebase
-to start using cli type `cli();` in the REPL
-
-Allowed operations:
-"+ - * / ( ) ~"
-
-number format:
-integer: 123
-rational: 123/456
-decimal: 123.456(789)
-Note:
-- it is compulsory to add recurring digits in decimal
-- eg: 0.3 must be written as 0.3(0)
-
 

@@ -78,18 +78,6 @@ fun parse (lexer) =
 
 val parseString = parse o stringToLexer
 val parseFile = parse o fileToLexer
-fun evaluateString str = "jo"
 
-(* cli interface to continuously take input and output the result on pressing enter *)
-
-fun cli() = 
-    (print("Enter an expression to evaluate, or 'quit' to exit: ");
-    let
-    val input = TextIO.inputLine(TextIO.stdIn);
-    in
-    case input of
-        NONE => ()
-    |   SOME "quit" => ()
-    |  SOME str => (print( " = " ^ evaluateString str ^ " \n"); cli())
-    end
-    )        
+fun interpret(inputFile, outputFile) =
+    AST.eval ((parseFile inputFile), outputFile)

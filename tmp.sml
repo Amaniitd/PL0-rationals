@@ -1,5 +1,0 @@
-AST.evalBlock(parseFile "test/t1.txt")
-AST.evalBlock(parseFile "test/t2.txt")
-AST.evalBlock(parseFile "test/t3.rat")
-AST.evalBlock(parseFile "test/t4.txt")
-AST.evalBlock(parseFile "test/t5.txt")

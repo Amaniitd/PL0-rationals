@@ -2,6 +2,8 @@ structure R = Rational(Bigint)
 
 structure AST = 
 struct 
+val program_output = ref ""
+fun printer (s:string) = program_output := !program_output ^ s
 
 datatype Block = Block of decls * cmds
 
@@ -230,10 +232,10 @@ fun defineDecls (decls) =
 
 
 fun printValue(v:value) = case v of
-   IntVal(i) => print(Bigint.toString(i)^"\n")
-   | RatVal(r) => print(R.showDecimal(r)^"\n")
-   | BoolVal(b) => if b then print("tt\n") else print("ff\n")
-   | ProcVal(b) => print("cannot print proc\n")
+   IntVal(i) => printer(Bigint.toString(i)^"\n")
+   | RatVal(r) => printer(R.showDecimal(r)^"\n")
+   | BoolVal(b) => if b then printer("tt\n") else printer("ff\n")
+   | ProcVal(b) => printer("cannot print proc\n")
 
 
 fun printScopeStack () =
@@ -466,7 +468,13 @@ fun evalBlock ((Block(decls,stmts))) =
       popScope()
    end
 
-
+fun writeFile filename content =
+    let val fd = TextIO.openOut filename
+        val _ = TextIO.output (fd, content) handle e => (TextIO.closeOut fd; raise e)
+        val _ = TextIO.closeOut fd
+    in () end
+fun eval(blk, outputfile) = 
+   (evalBlock(blk); writeFile outputfile (!program_output))
 
 
 end
