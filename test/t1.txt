@@ -17,13 +17,13 @@ boolean b;
       fi;
       while ff do
       {
-         a := make_rat(1,2);
+         a := make_rat(1,1);
       }
       od;
       a := a + c;
       b := ff;
    }
    od;
-
+      print(tt=ff);
 }
 

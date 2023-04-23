@@ -10,7 +10,7 @@ structure Tokens=Tokens
 	val column = ref 1;
 	val eof = fn() => Tokens.EOF(!column,!column)
 
-fun fromDecimal s = 
+fun fromMakeRat s = 
 	(* make_rat(a,b) call R.make_rat(a, b) *)
 	(* first remove "make_rat(" *)
 	let val s = String.substring(s, 9, String.size (s) - 10)
@@ -24,17 +24,25 @@ fun fromDecimal s =
 		end
 	end
 
+fun fromDecimalHelper s = 
+	(* fromDecimal(a) call R.fromDecimal(a) *)
+	(* first remove "fromDecimal(" *)
+	let val s = String.substring(s, 12, String.size (s) - 13)
+	in
+		R.fromDecimal(s)
+	end
+
 %%
 
 %header (functor AssignLexFun(structure Tokens:Parser_TOKENS));
 alpha = [A-Za-z];
-whitespace = [\ \t];
+wh = [\ \t];
 digit = [0-9];
 vchar = [0-9A-Za-z];
 
 %%
 \n => (linenum := !linenum + 1; column := 1; lex());
-{whitespace}+ => (column := !column + size(yytext); lex());
+{wh}+ => (column := !column + size(yytext); lex());
 
 
 "tt" => (column := !column + size(yytext); Tokens.TT(!linenum,!column));
@@ -91,11 +99,11 @@ vchar = [0-9A-Za-z];
 "/" => (column := !column + size(yytext); Tokens.DIV(!linenum,!column));
 
 
-"make_rat(" {digit}+ "," {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(fromDecimal yytext,!linenum,!column));
+"make_rat" {wh}* "(" {wh}* {digit}+ {wh}* "," {wh}* {digit}+ {wh}* ")" => (column := !column + size(yytext); Tokens.RAT(fromMakeRat yytext,!linenum,!column));
 
-"~" {digit}+ "." {digit}* "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
-{digit}+ "." {digit}* "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
-["~"] {digit}+ => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
-{digit}+ => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
+"fromDecimal" {wh}* "(" {wh}* "~" {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.INT(fromDecimalHelper yytext ,!linenum,!column));
+"fromDecimal" {wh}* "(" {wh}* {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.INT(fromDecimalHelper yytext ,!linenum,!column));
+["~"] {digit}+ => (column := !column + size(yytext); Tokens.INT(valOf(R.rat (Bigint.make_bigint yytext)),!linenum,!column));
+{digit}+ => (column := !column + size(yytext); Tokens.INT(valOf(R.rat (Bigint.make_bigint yytext)) ,!linenum,!column));
 
 {alpha}+ {vchar}* => (column := !column + size(yytext); Tokens.ID(yytext,!linenum,!column));

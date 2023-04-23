@@ -43,7 +43,6 @@ fun stringToLexer s =
         val str = removeComments s
     	val lexer=  ParserParser.makeLexer (fn _ => if (!done) then "" else (done:=true;str))
     in
-    print(str);
 	lexer
     end	
 

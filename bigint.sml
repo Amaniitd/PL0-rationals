@@ -36,7 +36,7 @@ fun second (_, y) = y
 fun make_bigint (s: string) = 
    let
          fun helper [] = []
-            | helper (c::cs) = if Char.isDigit c then (Char.ord c - 48) :: helper cs else raise bigint_error
+            | helper (c::cs) = if Char.isDigit c then (Char.ord c - 48) :: helper cs else raise bigint_error 
    in
       if String.size s = 0 then (0, [0])
       else if String.substring (s, 0, 1) = "~" then (1, helper (String.explode (String.substring (s, 1, String.size s - 1))))

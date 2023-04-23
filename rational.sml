@@ -16,12 +16,14 @@ val add : rational * rational -> rational (* addition *)
 val subtract : rational * rational -> rational (* subtraction *)
 val multiply : rational * rational -> rational (* multiplication *)
 val divide : rational * rational -> rational option (* division *)
+val modulo : rational * rational -> rational option (* modulo *)
 val showRat : rational -> string
 val showDecimal : rational -> string
 val fromDecimal : string -> rational
 val toDecimal : rational -> string
 val isInt : rational -> bool
 val zero : rational
+val showInt : rational -> string
 end;
 
 (* 
@@ -374,8 +376,9 @@ fun showDecimal (a:rational) = toDecimal a
 
 fun isInt (a:rational) = 
    let 
-      val x = first(a)
-      val y = second(a)
+      val b = fract_norm(a)
+      val x = first(b)
+      val y = second(b)
    in 
       if Bigint.equal(y, Bigint.make_bigint("1")) then
          true
@@ -385,5 +388,20 @@ fun isInt (a:rational) =
 
 val zero = (Bigint.zero, Bigint.make_bigint("1")):rational
 
+fun modulo (a:rational, b:rational) = 
+   let 
+      val x = fract_norm(a)
+      val y = fract_norm(b)
+      val z = valOf(Bigint.modulo(first(x), first(y)))
+   in 
+      make_rat(z, second(y))
+   end
+
+fun showInt (a:rational) = 
+   let 
+      val x = fract_norm(a)
+   in 
+      Bigint.toString(first(x))
+   end
 
 end;

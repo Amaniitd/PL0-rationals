@@ -62,7 +62,7 @@ and stable = symbols of symbol * stable | symbol of symbol | emptyStable
 and symbol = Symbol of string * typ * value
 
 and typ = Rat | Bool | IntT | Proc
-and value = RatVal of R.rational | BoolVal of bool | IntVal of int | ProcVal of Block
+and value = RatVal of R.rational | BoolVal of bool | IntVal of R.rational | ProcVal of Block
 
 
 val scopeStack = ref ([]:stable list)
@@ -102,7 +102,14 @@ fun lookup(s:string, scopeSt) =
 
 fun update(s:string, v:value) =
    let
-      fun typeOf (v:value) =
+      fun isSameType (t1:typ, t2:typ) =
+         case t1 of
+         Rat => if t2 = Rat orelse t2 = IntT then true else false
+         | Bool => if t2 = Bool then true else false
+         | IntT => if t2 = IntT orelse t2 = Rat then true else false
+         | Proc => if t2 = Proc then true else false
+
+      fun typeOf (v:value):typ =
          case v of
          RatVal(r) => Rat
          | BoolVal(b) => Bool
@@ -111,8 +118,8 @@ fun update(s:string, v:value) =
 
       fun checkType (s:string, v:value, scope:stable) =
          case scope of
-         symbols(Symbol(s',t,v'),scope') => if s = s' then if t = typeOf(v) then true else raise Fail("Type mismatch") else checkType(s,v,scope')
-         | symbol(Symbol(s',t,v')) => if s = s' then if t = typeOf(v) then true else raise Fail("Type mismatch") else raise Fail("Symbol not found | Scope stack is empty")
+         symbols(Symbol(s',t,v'),scope') => if s = s' then if isSameType(t, typeOf(v)) then true else raise Fail("Type mismatch") else checkType(s,v,scope')
+         | symbol(Symbol(s',t,v')) => if s = s' then if isSameType(t, typeOf(v)) then true else raise Fail("Type mismatch") else raise Fail("Symbol not found | Scope stack is empty")
          | emptyStable => raise Fail("Symbol not found | Scope stack is empty")
 
       fun updateInScope(s:string, v:value, scope:stable) =
@@ -173,7 +180,7 @@ fun newScope () = scopeStack := emptyStable::(!scopeStack)
 
 fun defineRatDecl (var) = addSymbol(var, Rat, RatVal(R.zero))
 fun defineBoolDecl (var) = addSymbol(var, Bool, BoolVal(false))
-fun defineIntDecl (var) = addSymbol(var, IntT, IntVal(0))
+fun defineIntDecl (var) = addSymbol(var, IntT, IntVal(R.zero))
 
 fun defineRatDecls (RatVars(name, v)) = (defineRatDecl(name); defineRatDecls(v))
    | defineRatDecls (RatVar(name)) = defineRatDecl(name)
@@ -212,9 +219,10 @@ fun defineDecls (decls) =
 
 
 fun printValue(v:value) = case v of
-   RatVal(r) => print(R.showRat(r)^"\n")
-   | BoolVal(b) => if b then print("true\n") else print("false\n")
-
+   IntVal(i) => print(R.showInt(i)^"\n")
+   | RatVal(r) => print(R.showDecimal(r)^"\n")
+   | BoolVal(b) => if b then print("tt\n") else print("ff\n")
+   | ProcVal(b) => print("cannot print proc\n")
 
 
 fun printScopeStack () =
@@ -230,12 +238,12 @@ fun printScopeStack () =
          case v of
          RatVal(r) => print(R.showRat(r))
          | BoolVal(b) => if b then print("true") else print("false")
-         | IntVal(i) => print("int")
+         | IntVal(i) => print(R.showRat(i))
          | ProcVal(b) => print("ProcVal")
       fun printScope (scope:stable) =
          case scope of
-         symbols(Symbol(s,t,v),scope') => (print(s); print(" "); printType(t); print(" "); printValue(v); print(" "); printScope(scope'))
-         | symbol(Symbol(s,t,v)) => (print(s); print(" "); printType(t); print(" "); printValue(v); print(" "))
+         symbols(Symbol(s,t,v),scope') => (print(s); print(" "); printType(t); print(" "); printValue(v); print(" "); printScope(scope'); print("\n"))
+         | symbol(Symbol(s,t,v)) => (print(s); print(" "); printType(t); print(" "); printValue(v); print("\n"))
          | emptyStable => ()
       
       fun helper(st) = case st of
@@ -249,7 +257,7 @@ fun cast_Rat (v:value) =
    case v of
    RatVal(r) => r
    | BoolVal(b) => raise Fail("Cannot cast Bool to Rat")
-   | IntVal(i) => raise Fail("Cannot cast Int to Rat")
+   | IntVal(i) => i
    | ProcVal(b) => raise Fail("Cannot cast Proc to Rat")
 
 fun cast_Bool (v:value) =
@@ -264,25 +272,47 @@ fun isEqual (v1:value, v2:value) =
    RatVal(r1) => (case v2 of
       RatVal(r2) => R.equal(r1,r2)
       | BoolVal(b2) => raise Fail("Cannot compare Rat to Bool")
-      | IntVal(i2) => raise Fail("Cannot compare Rat to Int")
+      | IntVal(i2) => R.equal(r1, i2)
       | ProcVal(b2) => raise Fail("Cannot compare Rat to Proc"))
    | BoolVal(b1) => (case v2 of
       RatVal(r2) => raise Fail("Cannot compare Bool to Rat")
       | BoolVal(b2) => b1 = b2
       | IntVal(i2) => raise Fail("Cannot compare Bool to Int")
       | ProcVal(b2) => raise Fail("Cannot compare Bool to Proc"))
+   
+   | IntVal(i1) => (case v2 of
+      RatVal(r2) => R.equal(i1, r2)
+      | BoolVal(b2) => raise Fail("Cannot compare Int to Bool")
+      | IntVal(i2) => R.equal(i1, i2)
+      | ProcVal(b2) => raise Fail("Cannot compare Int to Proc"))
 
    | ProcVal(b1) => raise Fail("Cannot compare Proc to anything")
 
 fun isLessThan (v1:value, v2:value) =
    case v1 of
-   RatVal(r1) => (case v2 of
+   RatVal(r1) => 
+   (case v2 of
       RatVal(r2) => R.less(r1,r2)
       | BoolVal(b2) => raise Fail("Cannot compare Rat to Bool")
-      | IntVal(i2) => raise Fail("Cannot compare Rat to Int")
-      | ProcVal(b2) => raise Fail("Cannot compare Rat to Proc"))
+      | IntVal(i2) => R.less(r1, i2)
+      | ProcVal(b2) => raise Fail("Cannot compare Rat to Proc")
+   )
+   | IntVal (i1) =>
+   (case v2 of
+      RatVal(r2) => R.less(i1, r2)
+      | BoolVal(b2) => raise Fail("Cannot compare Int to Bool")
+      | IntVal(i2) => R.less(i1, i2)
+      | ProcVal(b2) => raise Fail("Cannot compare Int to Proc")
+   )
    | BoolVal(b1) => raise Fail("Cannot compare Bool to anything")
    | ProcVal(b1) => raise Fail("Cannot compare Proc to anything")
+
+
+fun varType(s) = case lookup(s, !scopeStack) of
+   RatVal(r) => Rat
+   | BoolVal(b) => Bool
+   | IntVal(i) => IntT
+   | ProcVal(b) => Proc
 
 fun evalBlock ((Block(decls,stmts))) =
    let
@@ -292,12 +322,13 @@ fun evalBlock ((Block(decls,stmts))) =
             case expr of
             TT => BoolVal(true)
             | FF => BoolVal(false)
-            | Int(r) => RatVal(r)
+            | Int(r) => if R.isInt(r) then IntVal(r) else RatVal(r)
             | Var(s) => lookup(s, !scopeStack)
             | Binopr(Add, e1, e2) => RatVal(R.add(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2))))
             | Binopr(Sub, e1, e2) => RatVal(R.subtract(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2))))
             | Binopr(Mul, e1, e2) => RatVal(R.multiply(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2))))
             | Binopr(Div, e1, e2) => RatVal(valOf(R.divide(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2)))))
+            | Binopr(Mod, e1, e2) => RatVal(valOf(R.modulo(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2)))))
             | Binopr_bool(And, e1, e2) => BoolVal(cast_Bool(evalExp(e1)) andalso cast_Bool(evalExp(e2)))
             | Binopr_bool(Or, e1, e2) => BoolVal(cast_Bool(evalExp(e1)) orelse cast_Bool(evalExp(e2)))
             | relationalOpr(Eq, e1, e2) => BoolVal(isEqual(evalExp(e1), evalExp(e2)))
@@ -333,36 +364,25 @@ fun evalBlock ((Block(decls,stmts))) =
                let
                   val a = valOf (TextIO.inputLine TextIO.stdIn)
                   val b = String.substring(a, 0, String.size(a) - 1)
-                  val c = String.explode b
-                  val d = ref "";
-                  val e = ref "";
-                  val isD = ref true;
-                  fun addChar(c:char) = 
-                     if c = #"/" then
-                        isD := false
-                     else if !isD then
-                        d := !d ^ Char.toString c
-                     else
-                        e := !e ^ Char.toString c
-                  fun addChars(cs) =
-                     case cs of
-                     [] => ()
-                     | c::cs' => (addChar(c); addChars(cs'))
-                  
                in
-                  addChars(c);
-                  if (!d) = "tt" andalso (!e) = "" then
-                     update(s, BoolVal(true))
-                  else if (!d) = "ff" andalso (!e) = "" then
-                     update(s, BoolVal(false))
+                  if varType(s) = Rat then
+                     update (s, RatVal(R.fromDecimal(b)))
+                  else if varType(s) = IntT then
+                     update (s, IntVal(valOf(R.rat(Bigint.make_bigint(b)))))
+                  else if varType(s) = Bool then
+                     if b = "tt" then
+                        update (s, BoolVal(true))
+                     else if b = "ff" then
+                        update (s, BoolVal(false))
+                     else 
+                        raise Fail("Type mismatch: " ^ b ^ " is not a valid value")
                   else
-                     update(s, RatVal(valOf(R.make_rat(Bigint.make_bigint(!d), Bigint.make_bigint(!e)))))
+                     raise Fail("Type mismatch: " ^ b ^ " is not a valid value")
                end
-
 
             fun evalCmd(cmdarg) = 
                case cmdarg of
-               assignCmd(Assign(s, exp)) => addSymbol(s, Rat, evalExp(exp))
+               assignCmd(Assign(s, exp)) => update(s, evalExp(exp))
                | ifCmd(ifCmdarg) => evalIfCmd(ifCmdarg)
                | whileCmd(whileCmdarg) => evalWhileCmd(whileCmdarg)
                | printCmd(printCmdarg) => evalPrintCmd(printCmdarg)
