@@ -85,8 +85,8 @@ vchar = [0-9A-Za-z];
 ";" => (column := !column + size(yytext); Tokens.SEMICOLON(!linenum,!column));
 "," => (column := !column + size(yytext); Tokens.COMMA(!linenum,!column));
 
-".*." => (column := !column + size(yytext); Tokens.MUL(!linenum,!column));
-"./." => (column := !column + size(yytext); Tokens.DIV(!linenum,!column));
+".*." => (column := !column + size(yytext); Tokens.MULR(!linenum,!column));
+"./." => (column := !column + size(yytext); Tokens.DIVR(!linenum,!column));
 "%" => (column := !column + size(yytext); Tokens.MOD(!linenum,!column));
 
 "{" => (column := !column + size(yytext); Tokens.LBRACE(!linenum,!column));

@@ -9,7 +9,7 @@
    OR | AND | NOT | EQ | NEQ | LT | GT | LEQ | GEQ | ASSIGN | ID of string | CALL
    | READ | PRINT | IF | THEN | ELSE | FI | LBRACE | RBRACE | SEMICOLON
    | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN | PROCEDURE | INVERSE
-   | MOD | MAKERAT | RAT of R.rational
+   | MOD | MAKERAT | RAT of R.rational | MULR | DIVR
 
 %nonterm Start of AST.Block
    | Block of AST.Block
@@ -104,7 +104,9 @@ Exp : TT (AST.TT)
          | INVERSE Exp (AST.UnRatOpr(AST.Inverse, Exp))
 
 
-Term : Term MUL Unit (AST.Binopr(AST.Mul, Term , Unit))
+Term : Term MULR Unit (AST.BinRatOpr(AST.MulR, Term , Unit))
+      | Term DIVR Unit (AST.BinRatOpr(AST.DivR, Term , Unit))
+    | Term MUL Unit (AST.Binopr(AST.Mul, Term , Unit))
     | Term DIV Unit (AST.Binopr(AST.Div, Term , Unit))
     | Term MOD Unit (AST.Binopr(AST.Mod, Term , Unit))
     | Unit (Unit)

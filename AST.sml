@@ -49,6 +49,9 @@ and exp = TT | FF | Unopr_bool of unop_bool * exp
 | Var of string
 | RatI of R.rational
 | MakeRat of exp * exp
+| BinRatOpr of binratopr * exp * exp
+
+and binratopr = MulR | DivR
 
 
 and binop_bool = And | Or 
@@ -389,6 +392,14 @@ fun evalBlock ((Block(decls,stmts))) =
 
             | Unopr_bool (Not, e) => (case evalExp(e) of
                BoolVal(b) => BoolVal(not b)
+               | _ => raise Fail("Type mismatch"))
+            
+            | BinRatOpr (MulR, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (RatVal(r1), RatVal(r2)) => RatVal(R.multiply(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            
+            | BinRatOpr (DivR, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (RatVal(r1), RatVal(r2)) => RatVal(valOf(R.divide(r1,r2)))
                | _ => raise Fail("Type mismatch"))
 
 

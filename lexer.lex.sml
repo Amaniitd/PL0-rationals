@@ -1299,8 +1299,8 @@ let fun continue() = lex() in
 | 125 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.SEMICOLON(!linenum,!column) end
 | 127 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.COMMA(!linenum,!column) end
 | 13 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.OR(!linenum,!column) end
-| 131 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.MUL(!linenum,!column) end
-| 135 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.DIV(!linenum,!column) end
+| 131 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.MULR(!linenum,!column) end
+| 135 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.DIVR(!linenum,!column) end
 | 137 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.MOD(!linenum,!column) end
 | 139 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.LBRACE(!linenum,!column) end
 | 141 => let val yytext=yymktext() in column := !column + size(yytext); Tokens.RBRACE(!linenum,!column) end
