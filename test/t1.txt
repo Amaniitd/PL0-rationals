@@ -1,16 +1,28 @@
 rational a,c;
 boolean b;
 {
-   while tt do
-      if a then
+   while b do
+   {
+      if b then
+      {
          a := a + c;
+            read(a);
+   read(b);
+   print (a+b);
+      }
       else
+      {
          a := a - c;
+      }
       fi;
       while ff do
-         a := a + c;
+      {
+         a := make_rat(1,2);
+      }
       od;
       a := a + c;
+      b := ff;
+   }
    od;
 
 }

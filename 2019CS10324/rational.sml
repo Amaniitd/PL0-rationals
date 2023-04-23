@@ -17,9 +17,9 @@ val subtract : rational * rational -> rational (* subtraction *)
 val multiply : rational * rational -> rational (* multiplication *)
 val divide : rational * rational -> rational option (* division *)
 val showRat : rational -> string
-(* val showDecimal : rational -> string *)
+val showDecimal : rational -> string
 val fromDecimal : string -> rational
-(* val toDecimal : rational -> string *)
+val toDecimal : rational -> string
 end;
 
 (* 
@@ -300,6 +300,75 @@ else
    in 
       (x, y)
    end
+
+   fun belongs([], b, i) = (false, i)  
+    | belongs(x, b, i) = 
+        if Bigint.equal(hd(x), b) then (true, i)
+        else belongs(tl(x), b, i + 1)
+
+
+fun dec_div(rem, den, digits, li) = 
+   if Bigint.equal(rem, Bigint.zero) then (digits, NONE)
+   else
+      let 
+            val r = Bigint.mul(rem, Bigint.make_bigint("10"))
+            val q = Bigint.second(valOf(Bigint.divide(r, den)))
+            val new_r = valOf(Bigint.modulo(r, den))
+            val (bool, index) = belongs(li, new_r, 0)
+      in 
+            if Bigint.equal(new_r, Bigint.zero) then (digits@q, NONE) 
+            else if bool = false then dec_div(new_r, den, digits@q, li@[new_r])
+            else (digits@q, SOME (index))
+      end;
+
+
+
+fun toDecimal (a:rational) =
+   let
+      val x = fract_norm(a)
+      val s = Bigint.sign(first(x))
+      val n = Bigint.abs(first(x))
+      val d = make_rat(n, second(x))
+      val q = valOf(Bigint.divide(n, second(x)))
+      val r = valOf(Bigint.modulo(n, second(x)))
+      val q_str = Bigint.toString q
+      val li = [r]
+      val (digits, index) = dec_div(r, second(x), [], li)
+      val i = case index of 
+                  NONE => 0
+                | SOME i => i
+      fun toString [] = ""
+       | toString (x::xs) = Int.toString x ^ toString xs
+      
+      in
+         if s = 0 then
+            if digits = [] then q_str^".(0)"
+            else if index = NONE then
+               if q_str = "0" then
+                  ("."^(toString  digits)^"(0)")
+               else
+                  (q_str^"."^(toString digits)^"(0)")
+            else
+               if q_str = "0" then
+                  ("."^(toString(List.take(digits, i)))^"("^(toString(List.drop(digits, i)))^")")
+               else 
+                  (q_str^"."^(toString(List.take(digits, i)))^"("^(toString(List.drop(digits, i)))^")")
+         else
+            if digits = [] then "~"^(q_str)^".(0)"
+            else if index = NONE then
+               if q_str = "0" then
+                  ("~."^(toString digits)^"(0)")
+               else
+                  ("~"^(q_str)^"."^(toString digits)^"(0)")
+            else
+               if q_str = "0" then
+                  ("~."^(toString(List.take(digits, i)))^"("^(toString(List.drop(digits, i)))^")")
+               else 
+                  ("~"^(q_str)^"."^(toString(List.take(digits, i)))^"("^(toString(List.drop(digits, i)))^")")
+
+      end
+
+fun showDecimal (a:rational) = toDecimal a
 
 
 end;

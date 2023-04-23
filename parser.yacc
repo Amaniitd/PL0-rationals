@@ -9,6 +9,7 @@
    OR | AND | NOT | EQ | NEQ | LT | GT | LEQ | GEQ | ASSIGN | ID of string | CALL
    | READ | PRINT | IF | THEN | ELSE | FI | LBRACE | RBRACE | SEMICOLON
    | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN | PROCEDURE | INVERSE
+   | MOD
 
 %nonterm Start of AST.Block
    | Block of AST.Block
@@ -22,10 +23,8 @@
    | Cmds of AST.cmds
    | Cmd of AST.command
    | Exp of AST.exp
-   | BoolExp of AST.BoolExp
-   | RatExp of AST.RatExp
-   |Term of AST.RatExp
-   | Unit of AST.RatExp
+   |Term of AST.exp
+   | Unit of AST.exp
 
 %pos int
 %eop EOF 
@@ -83,36 +82,33 @@ Cmd : ID ASSIGN Exp (AST.assignCmd(AST.Assign(ID, Exp)))
    | CALL ID (AST.callCmd(AST.Call(ID)))
    | READ LPAREN ID RPAREN (AST.readCmd(AST.Read(ID)))
    | PRINT LPAREN Exp RPAREN (AST.printCmd(AST.Print(Exp)))
-   | IF BoolExp THEN Cmds ELSE Cmds FI (AST.ifCmd(AST.If(BoolExp, Cmds1, Cmds2)))
-   | WHILE BoolExp DO Cmds OD (AST.whileCmd(AST.While(BoolExp, Cmds)))
+   | IF Exp THEN CmdSeq ELSE CmdSeq FI (AST.ifCmd(AST.If(Exp, CmdSeq1, CmdSeq1)))
+   | WHILE Exp DO CmdSeq OD (AST.whileCmd(AST.While(Exp, CmdSeq)))
 
-Exp : BoolExp (AST.BoolExp(BoolExp))
-   | RatExp (AST.RatExp(RatExp))
-
-BoolExp : TT (AST.TT)
+Exp : TT (AST.TT)
         | FF (AST.FF)
-        | BoolExp OR BoolExp (AST.Binopr_bool(AST.Or, BoolExp1 , BoolExp2))
-        | BoolExp AND BoolExp (AST.Binopr_bool(AST.And, BoolExp1 , BoolExp2))
-        | NOT BoolExp (AST.Unopr_bool(AST.Not, BoolExp))
-        | RatExp EQ RatExp (AST.relationalOpr(AST.Eq, RatExp1, RatExp2))
-        | RatExp NEQ RatExp (AST.relationalOpr(AST.Neq, RatExp1, RatExp2))
-         | RatExp LT RatExp (AST.relationalOpr(AST.Lt, RatExp1, RatExp2))
-         | RatExp GT RatExp (AST.relationalOpr(AST.Gt, RatExp1, RatExp2))
-         | RatExp LEQ RatExp (AST.relationalOpr(AST.Leq, RatExp1, RatExp2))
-         | RatExp GEQ RatExp (AST.relationalOpr(AST.Geq, RatExp1, RatExp2))
+        | Exp OR Exp (AST.Binopr_bool(AST.Or, Exp1 , Exp2))
+        | Exp AND Exp (AST.Binopr_bool(AST.And, Exp1 , Exp2))
+        | NOT Exp (AST.Unopr_bool(AST.Not, Exp))
+        | Exp EQ Exp (AST.relationalOpr(AST.Eq, Exp1, Exp2))
+        | Exp NEQ Exp (AST.relationalOpr(AST.Neq, Exp1, Exp2))
+         | Exp LT Exp (AST.relationalOpr(AST.Lt, Exp1, Exp2))
+         | Exp GT Exp (AST.relationalOpr(AST.Gt, Exp1, Exp2))
+         | Exp LEQ Exp (AST.relationalOpr(AST.Leq, Exp1, Exp2))
+         | Exp GEQ Exp (AST.relationalOpr(AST.Geq, Exp1, Exp2))
+         | Exp ADD Term (AST.Binopr(AST.Add, Exp , Term))
+         | Exp SUB Term (AST.Binopr(AST.Sub, Exp , Term))
+         | Term (Term)
+         | LPAREN Exp RPAREN (Exp)
 
-
-RatExp : RatExp ADD Term (AST.Binopr(AST.Add, RatExp , Term))
-   | RatExp SUB Term (AST.Binopr(AST.Sub, RatExp , Term))
-   | INVERSE RatExp (AST.UnRatOpr(AST.Inverse, RatExp))
-   | Term (Term)
 
 Term : Term MUL Unit (AST.Binopr(AST.Mul, Term , Unit))
     | Term DIV Unit (AST.Binopr(AST.Div, Term , Unit))
+    | Term MOD Unit (AST.Binopr(AST.Mod, Term , Unit))
     | Unit (Unit)
    
 Unit : INT (AST.Int (INT))
-       | ID (AST.RatVarExp(ID))
+   | ID (AST.Var (ID))
 
 
 

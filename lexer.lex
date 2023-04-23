@@ -10,6 +10,20 @@ structure Tokens=Tokens
 	val column = ref 1;
 	val eof = fn() => Tokens.EOF(!column,!column)
 
+fun fromDecimal s = 
+	(* make_rat(a,b) call R.make_rat(a, b) *)
+	(* first remove "make_rat(" *)
+	let val s = String.substring(s, 9, String.size (s) - 10)
+	in
+		(* then split on "," *)
+		let val x = String.tokens (fn c => c = #"," ) s
+			val a = hd x
+			val b = hd (tl x)
+		in
+			valOf(R.make_rat (Bigint.make_bigint a, Bigint.make_bigint b))
+		end
+	end
+
 %%
 
 %header (functor AssignLexFun(structure Tokens:Parser_TOKENS));
@@ -63,6 +77,10 @@ vchar = [0-9A-Za-z];
 ";" => (column := !column + size(yytext); Tokens.SEMICOLON(!linenum,!column));
 "," => (column := !column + size(yytext); Tokens.COMMA(!linenum,!column));
 
+".*." => (column := !column + size(yytext); Tokens.MUL(!linenum,!column));
+"./." => (column := !column + size(yytext); Tokens.DIV(!linenum,!column));
+"%" => (column := !column + size(yytext); Tokens.MOD(!linenum,!column));
+
 "{" => (column := !column + size(yytext); Tokens.LBRACE(!linenum,!column));
 "}" => (column := !column + size(yytext); Tokens.RBRACE(!linenum,!column));
 "(" => (column := !column + size(yytext); Tokens.LPAREN(!linenum,!column));
@@ -72,6 +90,8 @@ vchar = [0-9A-Za-z];
 "*" => (column := !column + size(yytext); Tokens.MUL(!linenum,!column));
 "/" => (column := !column + size(yytext); Tokens.DIV(!linenum,!column));
 
+
+"make_rat(" {digit}+ "," {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(fromDecimal yytext,!linenum,!column));
 
 "~" {digit}+ "." {digit}* "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));
 {digit}+ "." {digit}* "(" {digit}+ ")" => (column := !column + size(yytext); Tokens.INT(R.fromDecimal yytext ,!linenum,!column));

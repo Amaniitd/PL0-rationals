@@ -2,6 +2,7 @@ signature Parser_TOKENS =
 sig
 type ('a,'b) token
 type svalue
+val MOD:  'a * 'a -> (svalue,'a) token
 val INVERSE:  'a * 'a -> (svalue,'a) token
 val PROCEDURE:  'a * 'a -> (svalue,'a) token
 val BOOLEAN:  'a * 'a -> (svalue,'a) token

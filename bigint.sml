@@ -21,6 +21,8 @@ val divide : bigint * bigint -> bigint option
 val printer : bigint -> string
 val toString : bigint -> string
 val fromString : string -> bigint
+val first : bigint -> int
+val second : bigint -> int list
 end;
 
 
