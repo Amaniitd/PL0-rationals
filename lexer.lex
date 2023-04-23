@@ -98,12 +98,12 @@ vchar = [0-9A-Za-z];
 "*" => (column := !column + size(yytext); Tokens.MUL(!linenum,!column));
 "/" => (column := !column + size(yytext); Tokens.DIV(!linenum,!column));
 
+"make_rat" => (column := !column + size(yytext); Tokens.MAKERAT(!linenum,!column));
 
-"make_rat" {wh}* "(" {wh}* {digit}+ {wh}* "," {wh}* {digit}+ {wh}* ")" => (column := !column + size(yytext); Tokens.RAT(fromMakeRat yytext,!linenum,!column));
 
-"fromDecimal" {wh}* "(" {wh}* "~" {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.INT(fromDecimalHelper yytext ,!linenum,!column));
-"fromDecimal" {wh}* "(" {wh}* {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.INT(fromDecimalHelper yytext ,!linenum,!column));
-["~"] {digit}+ => (column := !column + size(yytext); Tokens.INT(valOf(R.rat (Bigint.make_bigint yytext)),!linenum,!column));
-{digit}+ => (column := !column + size(yytext); Tokens.INT(valOf(R.rat (Bigint.make_bigint yytext)) ,!linenum,!column));
+"fromDecimal" {wh}* "(" {wh}* "~" {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.RAT(fromDecimalHelper yytext ,!linenum,!column));
+"fromDecimal" {wh}* "(" {wh}* {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.RAT(fromDecimalHelper yytext ,!linenum,!column));
+["~"] {digit}+ => (column := !column + size(yytext); Tokens.INT(Bigint.make_bigint yytext,!linenum,!column));
+{digit}+ => (column := !column + size(yytext); Tokens.INT(Bigint.make_bigint yytext ,!linenum,!column));
 
 {alpha}+ {vchar}* => (column := !column + size(yytext); Tokens.ID(yytext,!linenum,!column));

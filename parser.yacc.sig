@@ -2,6 +2,8 @@ signature Parser_TOKENS =
 sig
 type ('a,'b) token
 type svalue
+val RAT: (R.rational) *  'a * 'a -> (svalue,'a) token
+val MAKERAT:  'a * 'a -> (svalue,'a) token
 val MOD:  'a * 'a -> (svalue,'a) token
 val INVERSE:  'a * 'a -> (svalue,'a) token
 val PROCEDURE:  'a * 'a -> (svalue,'a) token
@@ -42,7 +44,7 @@ val DIV:  'a * 'a -> (svalue,'a) token
 val MUL:  'a * 'a -> (svalue,'a) token
 val SUB:  'a * 'a -> (svalue,'a) token
 val ADD:  'a * 'a -> (svalue,'a) token
-val INT: (R.rational) *  'a * 'a -> (svalue,'a) token
+val INT: (Bigint.bigint) *  'a * 'a -> (svalue,'a) token
 end
 signature Parser_LRVALS=
 sig

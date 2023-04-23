@@ -4,12 +4,12 @@
 
 %name Parser
 
-%term INT of R.rational
+%term INT of Bigint.bigint
    | ADD | SUB | MUL | DIV | LPAREN | RPAREN | EOF | TT | FF | 
    OR | AND | NOT | EQ | NEQ | LT | GT | LEQ | GEQ | ASSIGN | ID of string | CALL
    | READ | PRINT | IF | THEN | ELSE | FI | LBRACE | RBRACE | SEMICOLON
    | WHILE | DO | OD | RATIONAL | COMMA | INTEGER | BOOLEAN | PROCEDURE | INVERSE
-   | MOD
+   | MOD | MAKERAT | RAT of R.rational
 
 %nonterm Start of AST.Block
    | Block of AST.Block
@@ -82,7 +82,7 @@ Cmd : ID ASSIGN Exp (AST.assignCmd(AST.Assign(ID, Exp)))
    | CALL ID (AST.callCmd(AST.Call(ID)))
    | READ LPAREN ID RPAREN (AST.readCmd(AST.Read(ID)))
    | PRINT LPAREN Exp RPAREN (AST.printCmd(AST.Print(Exp)))
-   | IF Exp THEN CmdSeq ELSE CmdSeq FI (AST.ifCmd(AST.If(Exp, CmdSeq1, CmdSeq1)))
+   | IF Exp THEN CmdSeq ELSE CmdSeq FI (AST.ifCmd(AST.If(Exp, CmdSeq1, CmdSeq2)))
    | WHILE Exp DO CmdSeq OD (AST.whileCmd(AST.While(Exp, CmdSeq)))
 
 Exp : TT (AST.TT)
@@ -100,6 +100,8 @@ Exp : TT (AST.TT)
          | Exp SUB Term (AST.Binopr(AST.Sub, Exp , Term))
          | Term (Term)
          | LPAREN Exp RPAREN (Exp)
+         | MAKERAT LPAREN Exp COMMA Exp RPAREN (AST.MakeRat(Exp1, Exp2))
+         | INVERSE Exp (AST.UnRatOpr(AST.Inverse, Exp))
 
 
 Term : Term MUL Unit (AST.Binopr(AST.Mul, Term , Unit))
@@ -109,6 +111,7 @@ Term : Term MUL Unit (AST.Binopr(AST.Mul, Term , Unit))
    
 Unit : INT (AST.Int (INT))
    | ID (AST.Var (ID))
+   | RAT (AST.RatI (RAT))
 
 
 

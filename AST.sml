@@ -43,10 +43,12 @@ and whileCmd = While of exp * cmds
 and exp = TT | FF | Unopr_bool of unop_bool * exp
 | Binopr_bool of binop_bool * exp * exp
 | relationalOpr of relational_op * exp * exp
-| Int of R.rational
+| Int of Bigint.bigint
 | Binopr of binop * exp * exp
 | UnRatOpr of unoprat * exp
 | Var of string
+| RatI of R.rational
+| MakeRat of exp * exp
 
 
 and binop_bool = And | Or 
@@ -62,7 +64,7 @@ and stable = symbols of symbol * stable | symbol of symbol | emptyStable
 and symbol = Symbol of string * typ * value
 
 and typ = Rat | Bool | IntT | Proc
-and value = RatVal of R.rational | BoolVal of bool | IntVal of R.rational | ProcVal of Block
+and value = RatVal of R.rational | BoolVal of bool | IntVal of Bigint.bigint | ProcVal of Block
 
 
 val scopeStack = ref ([]:stable list)
@@ -97,7 +99,7 @@ fun lookup(s:string, scopeSt) =
          if isInScope(s,scope) then lookupInScope(s,scope) 
          else 
             if isInScope(s,globalScope(scope::scopes)) then lookupInScope(s,globalScope(scope::scopes))
-            else raise Fail("Symbol not found | Scope stack is empty")
+            else lookup(s,scopes)
    end
 
 fun update(s:string, v:value) =
@@ -152,6 +154,11 @@ fun update(s:string, v:value) =
          [] => raise Fail("Symbol not found | Scope stack is empty")
          | scope::[] => updateInScope(s,v,scope)::[]
          | scope::scopes => scope::(updateGlobalScope(s,v,scopes))
+
+      fun helper (s:string, v:value, scopeSt:stable list): stable list =
+         case scopeSt of
+         [] => raise Fail("Symbol not found | Scope stack is empty")
+         | scope::scopes => if isInScope(s,scope) then updateInScope(s,v,scope)::scopes else scope::helper(s,v,scopes)
       
    in
       case !scopeStack of
@@ -160,7 +167,8 @@ fun update(s:string, v:value) =
          if isInScope(s,scope) then scopeStack := updateInScope(s,v,scope)::scopes
          else if isInScope(s,globalScope(scope::scopes)) then 
             scopeStack := updateGlobalScope(s,v,scope::scopes)
-         else raise Fail("Symbol not found | Scope stack is empty")
+         else 
+         scopeStack := helper(s,v,scope::scopes)
    end
 
 fun addSymbol(s:string, t:typ, v:value) =
@@ -180,7 +188,7 @@ fun newScope () = scopeStack := emptyStable::(!scopeStack)
 
 fun defineRatDecl (var) = addSymbol(var, Rat, RatVal(R.zero))
 fun defineBoolDecl (var) = addSymbol(var, Bool, BoolVal(false))
-fun defineIntDecl (var) = addSymbol(var, IntT, IntVal(R.zero))
+fun defineIntDecl (var) = addSymbol(var, IntT, IntVal(Bigint.zero))
 
 fun defineRatDecls (RatVars(name, v)) = (defineRatDecl(name); defineRatDecls(v))
    | defineRatDecls (RatVar(name)) = defineRatDecl(name)
@@ -219,7 +227,7 @@ fun defineDecls (decls) =
 
 
 fun printValue(v:value) = case v of
-   IntVal(i) => print(R.showInt(i)^"\n")
+   IntVal(i) => print(Bigint.toString(i)^"\n")
    | RatVal(r) => print(R.showDecimal(r)^"\n")
    | BoolVal(b) => if b then print("tt\n") else print("ff\n")
    | ProcVal(b) => print("cannot print proc\n")
@@ -238,7 +246,7 @@ fun printScopeStack () =
          case v of
          RatVal(r) => print(R.showRat(r))
          | BoolVal(b) => if b then print("true") else print("false")
-         | IntVal(i) => print(R.showRat(i))
+         | IntVal(i) => print(Bigint.toString(i))
          | ProcVal(b) => print("ProcVal")
       fun printScope (scope:stable) =
          case scope of
@@ -257,7 +265,7 @@ fun cast_Rat (v:value) =
    case v of
    RatVal(r) => r
    | BoolVal(b) => raise Fail("Cannot cast Bool to Rat")
-   | IntVal(i) => i
+   | IntVal(i) => raise Fail("Cannot cast Int to Rat")
    | ProcVal(b) => raise Fail("Cannot cast Proc to Rat")
 
 fun cast_Bool (v:value) =
@@ -272,7 +280,7 @@ fun isEqual (v1:value, v2:value) =
    RatVal(r1) => (case v2 of
       RatVal(r2) => R.equal(r1,r2)
       | BoolVal(b2) => raise Fail("Cannot compare Rat to Bool")
-      | IntVal(i2) => R.equal(r1, i2)
+      | IntVal(i2) => raise Fail("Cannot compare Rat to Int")
       | ProcVal(b2) => raise Fail("Cannot compare Rat to Proc"))
    | BoolVal(b1) => (case v2 of
       RatVal(r2) => raise Fail("Cannot compare Bool to Rat")
@@ -281,9 +289,9 @@ fun isEqual (v1:value, v2:value) =
       | ProcVal(b2) => raise Fail("Cannot compare Bool to Proc"))
    
    | IntVal(i1) => (case v2 of
-      RatVal(r2) => R.equal(i1, r2)
+      RatVal(r2) => raise Fail("Cannot compare Int to Rat")
       | BoolVal(b2) => raise Fail("Cannot compare Int to Bool")
-      | IntVal(i2) => R.equal(i1, i2)
+      | IntVal(i2) => Bigint.equal(i1, i2)
       | ProcVal(b2) => raise Fail("Cannot compare Int to Proc"))
 
    | ProcVal(b1) => raise Fail("Cannot compare Proc to anything")
@@ -294,14 +302,14 @@ fun isLessThan (v1:value, v2:value) =
    (case v2 of
       RatVal(r2) => R.less(r1,r2)
       | BoolVal(b2) => raise Fail("Cannot compare Rat to Bool")
-      | IntVal(i2) => R.less(r1, i2)
+      | IntVal(i2) => raise Fail("Cannot compare Rat to Int")
       | ProcVal(b2) => raise Fail("Cannot compare Rat to Proc")
    )
    | IntVal (i1) =>
    (case v2 of
-      RatVal(r2) => R.less(i1, r2)
+      RatVal(r2) => raise Fail("Cannot compare Int to Rat")
       | BoolVal(b2) => raise Fail("Cannot compare Int to Bool")
-      | IntVal(i2) => R.less(i1, i2)
+      | IntVal(i2) =>  Bigint.less(i1, i2)
       | ProcVal(b2) => raise Fail("Cannot compare Int to Proc")
    )
    | BoolVal(b1) => raise Fail("Cannot compare Bool to anything")
@@ -322,23 +330,66 @@ fun evalBlock ((Block(decls,stmts))) =
             case expr of
             TT => BoolVal(true)
             | FF => BoolVal(false)
-            | Int(r) => if R.isInt(r) then IntVal(r) else RatVal(r)
+            | Int(r) => IntVal(r)
             | Var(s) => lookup(s, !scopeStack)
-            | Binopr(Add, e1, e2) => RatVal(R.add(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2))))
-            | Binopr(Sub, e1, e2) => RatVal(R.subtract(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2))))
-            | Binopr(Mul, e1, e2) => RatVal(R.multiply(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2))))
-            | Binopr(Div, e1, e2) => RatVal(valOf(R.divide(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2)))))
-            | Binopr(Mod, e1, e2) => RatVal(valOf(R.modulo(cast_Rat(evalExp(e1)), cast_Rat(evalExp(e2)))))
-            | Binopr_bool(And, e1, e2) => BoolVal(cast_Bool(evalExp(e1)) andalso cast_Bool(evalExp(e2)))
-            | Binopr_bool(Or, e1, e2) => BoolVal(cast_Bool(evalExp(e1)) orelse cast_Bool(evalExp(e2)))
-            | relationalOpr(Eq, e1, e2) => BoolVal(isEqual(evalExp(e1), evalExp(e2)))
-            | relationalOpr(Lt, e1, e2) => BoolVal(isLessThan(evalExp(e1), evalExp(e2)))
-            | relationalOpr(Gt, e1, e2) => BoolVal(isLessThan(evalExp(e2), evalExp(e1)))
-            | relationalOpr(Leq, e1, e2) => BoolVal(isLessThan(evalExp(e1), evalExp(e2)) orelse isEqual(evalExp(e1), evalExp(e2)))
-            | relationalOpr(Geq, e1, e2) => BoolVal(isLessThan(evalExp(e2), evalExp(e1)) orelse isEqual(evalExp(e1), evalExp(e2)))
-            | relationalOpr(Ne, e1, e2) => BoolVal(not(isEqual(evalExp(e1), evalExp(e2))))
-            | Unopr_bool (Not, e1) => BoolVal(not(cast_Bool(evalExp(e1))))
-            | UnRatOpr (Inverse, e1) => RatVal(valOf(R.inverse(cast_Rat(evalExp(e1)))))
+            | RatI(r) => RatVal(r)
+            | MakeRat(e1,e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => RatVal(valOf(R.make_rat(i1,i2)))
+               | _ => raise Fail("Type mismatch"))
+            | Binopr(Add, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => IntVal(Bigint.add(i1,i2))
+               | (RatVal(r1), RatVal(r2)) => RatVal(R.add(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            | Binopr(Sub, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => IntVal(Bigint.sub(i1,i2))
+               | (RatVal(r1), RatVal(r2)) => RatVal(R.subtract(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            | Binopr(Mul, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => IntVal(Bigint.mul(i1,i2))
+               | (RatVal(r1), RatVal(r2)) => RatVal(R.multiply(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            | Binopr(Div, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => IntVal(valOf(Bigint.divide(i1,i2)))
+               | (RatVal(r1), RatVal(r2)) => RatVal(valOf(R.divide(r1,r2)))
+               | _ => raise Fail("Type mismatch"))
+            | Binopr(Mod, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => IntVal(valOf(Bigint.modulo(i1,i2)))
+               | _ => raise Fail("Type mismatch"))
+            
+            | relationalOpr (Lt, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => BoolVal(Bigint.less(i1,i2))
+               | (RatVal(r1), RatVal(r2)) => BoolVal(R.less(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            | relationalOpr (Gt, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => BoolVal(Bigint.less(i2,i1))
+               | (RatVal(r1), RatVal(r2)) => BoolVal(R.less(r2,r1))
+               | _ => raise Fail("Type mismatch"))
+            | relationalOpr (Leq, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => BoolVal(Bigint.less(i1,i2) orelse Bigint.equal(i1,i2))
+               | (RatVal(r1), RatVal(r2)) => BoolVal(R.less(r1,r2) orelse R.equal(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            | relationalOpr (Geq, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => BoolVal(Bigint.less(i2,i1) orelse Bigint.equal(i1,i2))
+               | (RatVal(r1), RatVal(r2)) => BoolVal(R.less(r2,r1) orelse R.equal(r1,r2))
+               | _ => raise Fail("Type mismatch"))
+            | relationalOpr (Eq, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => BoolVal(Bigint.equal(i1,i2))
+               | (RatVal(r1), RatVal(r2)) => BoolVal(R.equal(r1,r2))
+               | (BoolVal(b1), BoolVal(b2)) => BoolVal(b1 = b2)
+               | _ => raise Fail("Type mismatch"))
+            | relationalOpr (Neq, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (IntVal(i1), IntVal(i2)) => BoolVal(not(Bigint.equal(i1,i2)))
+               | (RatVal(r1), RatVal(r2)) => BoolVal(not(R.equal(r1,r2)))
+               | (BoolVal(b1), BoolVal(b2)) => BoolVal(not(b1 = b2))
+               | _ => raise Fail("Type mismatch"))
+
+            | UnRatOpr (Inverse, e) => (case evalExp(e) of
+               RatVal(r) => RatVal(valOf(R.inverse(r)))
+               | _ => raise Fail("Type mismatch"))
+
+            | Unopr_bool (Not, e) => (case evalExp(e) of
+               BoolVal(b) => BoolVal(not b)
+               | _ => raise Fail("Type mismatch"))
 
 
             fun evalIfCmd (If(bln, cmds1, cmds2)) =
@@ -368,7 +419,7 @@ fun evalBlock ((Block(decls,stmts))) =
                   if varType(s) = Rat then
                      update (s, RatVal(R.fromDecimal(b)))
                   else if varType(s) = IntT then
-                     update (s, IntVal(valOf(R.rat(Bigint.make_bigint(b)))))
+                     update (s, IntVal(Bigint.make_bigint(b)))
                   else if varType(s) = Bool then
                      if b = "tt" then
                         update (s, BoolVal(true))
