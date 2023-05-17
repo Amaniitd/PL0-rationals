@@ -1,4 +1,9 @@
 
+- These are the files for the assignments of the course COL226 by Prof. S. Arun Kumar
+- Bigrat-functor.pdf contains infromation regarding the Rational functor package
+- pl0-rationals.pdf contains the infromation regarding the PL0 language
+
+
 
 ## Grammar for rational numbers
 

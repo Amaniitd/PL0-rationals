@@ -2,6 +2,7 @@ signature Parser_TOKENS =
 sig
 type ('a,'b) token
 type svalue
+val MRAT:  'a * 'a -> (svalue,'a) token
 val SUBR:  'a * 'a -> (svalue,'a) token
 val ADDR:  'a * 'a -> (svalue,'a) token
 val DIVR:  'a * 'a -> (svalue,'a) token

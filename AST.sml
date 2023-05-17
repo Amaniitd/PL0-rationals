@@ -52,6 +52,7 @@ and exp = TT | FF | Unopr_bool of unop_bool * exp
 | RatI of R.rational
 | MakeRat of exp * exp
 | BinRatOpr of binratopr * exp * exp
+| MRat of exp
 
 and binratopr = MulR | DivR | AddR | SubR
 
@@ -341,6 +342,9 @@ fun evalBlock ((Block(decls,stmts))) =
             | MakeRat(e1,e2) => (case (evalExp(e1), evalExp(e2)) of
                (IntVal(i1), IntVal(i2)) => RatVal(valOf(R.make_rat(i1,i2)))
                | _ => raise Fail("Type mismatch"))
+            | MRat(e) => (case evalExp(e) of
+               IntVal(i) => RatVal(valOf(R.make_rat(i,Bigint.fromInt(1))))
+               | _ => raise Fail("Type mismatch"))
             | Binopr(Add, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (IntVal(i1), IntVal(i2)) => IntVal(Bigint.add(i1,i2))
                | _ => raise Fail("Type mismatch"))
@@ -405,6 +409,14 @@ fun evalBlock ((Block(decls,stmts))) =
             | BinRatOpr (SubR, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
                (RatVal(r1), RatVal(r2)) => RatVal(R.subtract(r1,r2))
                | _ => raise Fail("Type mismatch"))
+
+            | Binopr_bool (And, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (BoolVal(b1), BoolVal(b2)) => BoolVal(b1 andalso b2)
+               | _ => raise Fail("Type mismatch"))
+            | Binopr_bool (Or, e1, e2) => (case (evalExp(e1), evalExp(e2)) of
+               (BoolVal(b1), BoolVal(b2)) => BoolVal(b1 orelse b2)
+               | _ => raise Fail("Type mismatch"))
+            
 
 
             fun evalIfCmd (If(bln, cmds1, cmds2)) =

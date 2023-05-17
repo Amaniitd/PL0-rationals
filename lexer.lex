@@ -103,8 +103,11 @@ vchar = [0-9A-Za-z];
 "*" => (column := !column + size(yytext); Tokens.MUL(!linenum,!column));
 "/" => (column := !column + size(yytext); Tokens.DIV(!linenum,!column));
 
+
+
 "make_rat" => (column := !column + size(yytext); Tokens.MAKERAT(!linenum,!column));
 
+"rat" => (column := !column + size(yytext); Tokens.MRAT(!linenum,!column));
 
 "fromDecimal" {wh}* "(" {wh}* "~" {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.RAT(fromDecimalHelper yytext ,!linenum,!column));
 "fromDecimal" {wh}* "(" {wh}* {digit}+ "." {digit}* "(" {digit}+ ")" {wh}* ")" => (column := !column + size(yytext); Tokens.RAT(fromDecimalHelper yytext ,!linenum,!column));

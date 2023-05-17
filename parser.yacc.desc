@@ -8,7 +8,7 @@ state 0:
 	BOOLEAN	shift 6
 	PROCEDURE	shift 5
 
-	Start	goto 116
+	Start	goto 120
 	Block	goto 4
 	DeclSeq	goto 3
 	procDecls	goto 2
@@ -263,15 +263,16 @@ state 22:
 
 	Cmd : WHILE . Exp DO CmdSeq OD 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 40
 	Term	goto 39
@@ -293,17 +294,18 @@ state 24:
 
 	Cmd : IF . Exp THEN CmdSeq ELSE CmdSeq FI 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
-	Exp	goto 50
+	Exp	goto 51
 	Term	goto 39
 	Unit	goto 38
 
@@ -314,7 +316,7 @@ state 25:
 
 	Cmd : PRINT . LPAREN Exp RPAREN 
 
-	LPAREN	shift 51
+	LPAREN	shift 52
 
 
 	.	error
@@ -324,7 +326,7 @@ state 26:
 
 	Cmd : READ . LPAREN ID RPAREN 
 
-	LPAREN	shift 52
+	LPAREN	shift 53
 
 
 	.	error
@@ -334,7 +336,7 @@ state 27:
 
 	Cmd : CALL . ID 
 
-	ID	shift 53
+	ID	shift 54
 
 
 	.	error
@@ -344,7 +346,7 @@ state 28:
 
 	Cmd : ID . ASSIGN Exp 
 
-	ASSIGN	shift 54
+	ASSIGN	shift 55
 
 
 	.	error
@@ -354,7 +356,7 @@ state 29:
 
 	procDecls : PROCEDURE ID Block . SEMICOLON 
 
-	SEMICOLON	shift 55
+	SEMICOLON	shift 56
 
 
 	.	error
@@ -375,7 +377,7 @@ state 31:
 
 	ID	shift 15
 
-	BoolVars	goto 56
+	BoolVars	goto 57
 
 	.	error
 
@@ -395,7 +397,7 @@ state 33:
 
 	ID	shift 17
 
-	IntVars	goto 57
+	IntVars	goto 58
 
 	.	error
 
@@ -415,7 +417,7 @@ state 35:
 
 	ID	shift 19
 
-	RatVars	goto 58
+	RatVars	goto 59
 
 	.	error
 
@@ -432,7 +434,7 @@ state 36:
 	IF	shift 24
 	WHILE	shift 22
 
-	Cmds	goto 59
+	Cmds	goto 60
 	Cmd	goto 20
 
 	.	reduce by rule 18
@@ -449,11 +451,11 @@ state 37:
 
 state 38:
 
-	Term : Unit .  (reduce by rule 49)
+	Term : Unit .  (reduce by rule 47)
 
 
 
-	.	reduce by rule 49
+	.	reduce by rule 47
 
 
 state 39:
@@ -465,11 +467,11 @@ state 39:
 	Term : Term . DIV Unit 
 	Term : Term . MOD Unit 
 
-	MUL	shift 64
-	DIV	shift 63
-	MOD	shift 62
-	MULR	shift 61
-	DIVR	shift 60
+	MUL	shift 65
+	DIV	shift 64
+	MOD	shift 63
+	MULR	shift 62
+	DIVR	shift 61
 
 
 	.	reduce by rule 40
@@ -491,19 +493,19 @@ state 40:
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
 
-	ADD	shift 77
-	SUB	shift 76
-	OR	shift 75
-	AND	shift 74
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
-	DO	shift 67
-	ADDR	shift 66
-	SUBR	shift 65
+	ADD	shift 78
+	SUB	shift 77
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	DO	shift 68
+	ADDR	shift 67
+	SUBR	shift 66
 
 
 	.	error
@@ -511,105 +513,47 @@ state 40:
 
 state 41:
 
-	Unit : RAT .  (reduce by rule 52)
+	Unit : MRAT . LPAREN Exp RPAREN 
 
-
-
-	.	reduce by rule 52
-
-
-state 42:
-
-	Exp : MAKERAT . LPAREN Exp COMMA Exp RPAREN 
-
-	LPAREN	shift 78
+	LPAREN	shift 79
 
 
 	.	error
 
 
+state 42:
+
+	Unit : RAT .  (reduce by rule 50)
+
+
+
+	.	reduce by rule 50
+
+
 state 43:
 
-	Exp : INVERSE . Exp 
+	Unit : MAKERAT . LPAREN Exp COMMA Exp RPAREN 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	LPAREN	shift 80
 
-	Exp	goto 79
-	Term	goto 39
-	Unit	goto 38
 
 	.	error
 
 
 state 44:
 
-	Unit : ID .  (reduce by rule 51)
+	Exp : INVERSE . Exp 
 
-
-
-	.	reduce by rule 51
-
-
-state 45:
-
-	Exp : NOT . Exp 
-
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
-
-	Exp	goto 80
-	Term	goto 39
-	Unit	goto 38
-
-	.	error
-
-
-state 46:
-
-	Exp : FF .  (reduce by rule 26)
-
-
-
-	.	reduce by rule 26
-
-
-state 47:
-
-	Exp : TT .  (reduce by rule 25)
-
-
-
-	.	reduce by rule 25
-
-
-state 48:
-
-	Exp : LPAREN . Exp RPAREN 
-
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 81
 	Term	goto 39
@@ -618,16 +562,87 @@ state 48:
 	.	error
 
 
+state 45:
+
+	Unit : ID .  (reduce by rule 49)
+
+
+
+	.	reduce by rule 49
+
+
+state 46:
+
+	Exp : NOT . Exp 
+
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
+
+	Exp	goto 82
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
+state 47:
+
+	Exp : FF .  (reduce by rule 26)
+
+
+
+	.	reduce by rule 26
+
+
+state 48:
+
+	Exp : TT .  (reduce by rule 25)
+
+
+
+	.	reduce by rule 25
+
+
 state 49:
 
-	Unit : INT .  (reduce by rule 50)
+	Unit : LPAREN . Exp RPAREN 
 
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
+	Exp	goto 83
+	Term	goto 39
+	Unit	goto 38
 
-	.	reduce by rule 50
+	.	error
 
 
 state 50:
+
+	Unit : INT .  (reduce by rule 48)
+
+
+
+	.	reduce by rule 48
+
+
+state 51:
 
 	Cmd : IF Exp . THEN CmdSeq ELSE CmdSeq FI 
 	Exp : Exp . OR Exp 
@@ -643,77 +658,38 @@ state 50:
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
 
-	ADD	shift 77
-	SUB	shift 76
-	OR	shift 75
-	AND	shift 74
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
-	THEN	shift 82
-	ADDR	shift 66
-	SUBR	shift 65
+	ADD	shift 78
+	SUB	shift 77
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	THEN	shift 84
+	ADDR	shift 67
+	SUBR	shift 66
 
-
-	.	error
-
-
-state 51:
-
-	Cmd : PRINT LPAREN . Exp RPAREN 
-
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
-
-	Exp	goto 83
-	Term	goto 39
-	Unit	goto 38
 
 	.	error
 
 
 state 52:
 
-	Cmd : READ LPAREN . ID RPAREN 
+	Cmd : PRINT LPAREN . Exp RPAREN 
 
-	ID	shift 84
-
-
-	.	error
-
-
-state 53:
-
-	Cmd : CALL ID .  (reduce by rule 20)
-
-
-
-	.	reduce by rule 20
-
-
-state 54:
-
-	Cmd : ID ASSIGN . Exp 
-
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 85
 	Term	goto 39
@@ -722,7 +698,48 @@ state 54:
 	.	error
 
 
+state 53:
+
+	Cmd : READ LPAREN . ID RPAREN 
+
+	ID	shift 86
+
+
+	.	error
+
+
+state 54:
+
+	Cmd : CALL ID .  (reduce by rule 20)
+
+
+
+	.	reduce by rule 20
+
+
 state 55:
+
+	Cmd : ID ASSIGN . Exp 
+
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
+
+	Exp	goto 87
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
+state 56:
 
 	procDecls : PROCEDURE ID Block SEMICOLON .  (reduce by rule 5)
 
@@ -731,7 +748,7 @@ state 55:
 	.	reduce by rule 5
 
 
-state 56:
+state 57:
 
 	BoolVars : ID COMMA BoolVars .  (reduce by rule 11)
 
@@ -740,7 +757,7 @@ state 56:
 	.	reduce by rule 11
 
 
-state 57:
+state 58:
 
 	IntVars : ID COMMA IntVars .  (reduce by rule 13)
 
@@ -749,7 +766,7 @@ state 57:
 	.	reduce by rule 13
 
 
-state 58:
+state 59:
 
 	RatVars : ID COMMA RatVars .  (reduce by rule 9)
 
@@ -758,7 +775,7 @@ state 58:
 	.	reduce by rule 9
 
 
-state 59:
+state 60:
 
 	Cmds : Cmd SEMICOLON Cmds .  (reduce by rule 17)
 
@@ -767,94 +784,98 @@ state 59:
 	.	reduce by rule 17
 
 
-state 60:
+state 61:
 
 	Term : Term DIVR . Unit 
 
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
-
-	Unit	goto 86
-
-	.	error
-
-
-state 61:
-
-	Term : Term MULR . Unit 
-
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
-
-	Unit	goto 87
-
-	.	error
-
-
-state 62:
-
-	Term : Term MOD . Unit 
-
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Unit	goto 88
 
 	.	error
 
 
-state 63:
+state 62:
 
-	Term : Term DIV . Unit 
+	Term : Term MULR . Unit 
 
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Unit	goto 89
 
 	.	error
 
 
-state 64:
+state 63:
 
-	Term : Term MUL . Unit 
+	Term : Term MOD . Unit 
 
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Unit	goto 90
 
 	.	error
 
 
+state 64:
+
+	Term : Term DIV . Unit 
+
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
+
+	Unit	goto 91
+
+	.	error
+
+
 state 65:
 
-	Exp : Exp SUBR . Term 
+	Term : Term MUL . Unit 
 
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
-	Term	goto 91
-	Unit	goto 38
+	Unit	goto 92
 
 	.	error
 
 
 state 66:
 
-	Exp : Exp ADDR . Term 
+	Exp : Exp SUBR . Term 
 
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
-	Term	goto 92
+	Term	goto 93
 	Unit	goto 38
 
 	.	error
@@ -862,70 +883,46 @@ state 66:
 
 state 67:
 
-	Cmd : WHILE Exp DO . CmdSeq OD 
+	Exp : Exp ADDR . Term 
 
-	LBRACE	shift 12
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
-	CmdSeq	goto 93
+	Term	goto 94
+	Unit	goto 38
 
 	.	error
 
 
 state 68:
 
-	Exp : Exp GEQ . Exp 
+	Cmd : WHILE Exp DO . CmdSeq OD 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	LBRACE	shift 12
 
-	Exp	goto 94
-	Term	goto 39
-	Unit	goto 38
+	CmdSeq	goto 95
 
 	.	error
 
 
 state 69:
 
-	Exp : Exp LEQ . Exp 
+	Exp : Exp GEQ . Exp 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
-
-	Exp	goto 95
-	Term	goto 39
-	Unit	goto 38
-
-	.	error
-
-
-state 70:
-
-	Exp : Exp GT . Exp 
-
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 96
 	Term	goto 39
@@ -934,19 +931,20 @@ state 70:
 	.	error
 
 
-state 71:
+state 70:
 
-	Exp : Exp LT . Exp 
+	Exp : Exp LEQ . Exp 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 97
 	Term	goto 39
@@ -955,19 +953,20 @@ state 71:
 	.	error
 
 
-state 72:
+state 71:
 
-	Exp : Exp NEQ . Exp 
+	Exp : Exp GT . Exp 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 98
 	Term	goto 39
@@ -976,19 +975,20 @@ state 72:
 	.	error
 
 
-state 73:
+state 72:
 
-	Exp : Exp EQ . Exp 
+	Exp : Exp LT . Exp 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 99
 	Term	goto 39
@@ -997,19 +997,20 @@ state 73:
 	.	error
 
 
-state 74:
+state 73:
 
-	Exp : Exp AND . Exp 
+	Exp : Exp NEQ . Exp 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 100
 	Term	goto 39
@@ -1018,19 +1019,20 @@ state 74:
 	.	error
 
 
-state 75:
+state 74:
 
-	Exp : Exp OR . Exp 
+	Exp : Exp EQ . Exp 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
 	Exp	goto 101
 	Term	goto 39
@@ -1039,15 +1041,45 @@ state 75:
 	.	error
 
 
+state 75:
+
+	Exp : Exp AND . Exp 
+
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
+
+	Exp	goto 102
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
 state 76:
 
-	Exp : Exp SUB . Term 
+	Exp : Exp OR . Exp 
 
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
-	Term	goto 102
+	Exp	goto 103
+	Term	goto 39
 	Unit	goto 38
 
 	.	error
@@ -1055,13 +1087,16 @@ state 76:
 
 state 77:
 
-	Exp : Exp ADD . Term 
+	Exp : Exp SUB . Term 
 
-	INT	shift 49
-	ID	shift 44
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
-	Term	goto 103
+	Term	goto 104
 	Unit	goto 38
 
 	.	error
@@ -1069,26 +1104,66 @@ state 77:
 
 state 78:
 
-	Exp : MAKERAT LPAREN . Exp COMMA Exp RPAREN 
+	Exp : Exp ADD . Term 
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
+	INT	shift 50
+	LPAREN	shift 49
+	ID	shift 45
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
 
-	Exp	goto 104
-	Term	goto 39
+	Term	goto 105
 	Unit	goto 38
 
 	.	error
 
 
 state 79:
+
+	Unit : MRAT LPAREN . Exp RPAREN 
+
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
+
+	Exp	goto 106
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
+state 80:
+
+	Unit : MAKERAT LPAREN . Exp COMMA Exp RPAREN 
+
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
+
+	Exp	goto 107
+	Term	goto 39
+	Unit	goto 38
+
+	.	error
+
+
+state 81:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1102,14 +1177,14 @@ state 79:
 	Exp : Exp . SUB Term 
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
-	Exp : INVERSE Exp .  (reduce by rule 43)
+	Exp : INVERSE Exp .  (reduce by rule 41)
 
 
 
-	.	reduce by rule 43
+	.	reduce by rule 41
 
 
-state 80:
+state 82:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1130,7 +1205,7 @@ state 80:
 	.	reduce by rule 29
 
 
-state 81:
+state 83:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1144,38 +1219,38 @@ state 81:
 	Exp : Exp . SUB Term 
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
-	Exp : LPAREN Exp . RPAREN 
+	Unit : LPAREN Exp . RPAREN 
 
-	ADD	shift 77
-	SUB	shift 76
-	RPAREN	shift 105
-	OR	shift 75
-	AND	shift 74
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
-	ADDR	shift 66
-	SUBR	shift 65
+	ADD	shift 78
+	SUB	shift 77
+	RPAREN	shift 108
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	ADDR	shift 67
+	SUBR	shift 66
 
 
 	.	error
 
 
-state 82:
+state 84:
 
 	Cmd : IF Exp THEN . CmdSeq ELSE CmdSeq FI 
 
 	LBRACE	shift 12
 
-	CmdSeq	goto 106
+	CmdSeq	goto 109
 
 	.	error
 
 
-state 83:
+state 85:
 
 	Cmd : PRINT LPAREN Exp . RPAREN 
 	Exp : Exp . OR Exp 
@@ -1191,35 +1266,35 @@ state 83:
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
 
-	ADD	shift 77
-	SUB	shift 76
-	RPAREN	shift 107
-	OR	shift 75
-	AND	shift 74
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
-	ADDR	shift 66
-	SUBR	shift 65
+	ADD	shift 78
+	SUB	shift 77
+	RPAREN	shift 110
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	ADDR	shift 67
+	SUBR	shift 66
 
 
 	.	error
 
 
-state 84:
+state 86:
 
 	Cmd : READ LPAREN ID . RPAREN 
 
-	RPAREN	shift 108
+	RPAREN	shift 111
 
 
 	.	error
 
 
-state 85:
+state 87:
 
 	Cmd : ID ASSIGN Exp .  (reduce by rule 19)
 	Exp : Exp . OR Exp 
@@ -1235,62 +1310,44 @@ state 85:
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
 
-	ADD	shift 77
-	SUB	shift 76
-	OR	shift 75
-	AND	shift 74
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
-	ADDR	shift 66
-	SUBR	shift 65
+	ADD	shift 78
+	SUB	shift 77
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	ADDR	shift 67
+	SUBR	shift 66
 
 
 	.	reduce by rule 19
 
 
-state 86:
-
-	Term : Term DIVR Unit .  (reduce by rule 45)
-
-
-
-	.	reduce by rule 45
-
-
-state 87:
-
-	Term : Term MULR Unit .  (reduce by rule 44)
-
-
-
-	.	reduce by rule 44
-
-
 state 88:
 
-	Term : Term MOD Unit .  (reduce by rule 48)
+	Term : Term DIVR Unit .  (reduce by rule 43)
 
 
 
-	.	reduce by rule 48
+	.	reduce by rule 43
 
 
 state 89:
 
-	Term : Term DIV Unit .  (reduce by rule 47)
+	Term : Term MULR Unit .  (reduce by rule 42)
 
 
 
-	.	reduce by rule 47
+	.	reduce by rule 42
 
 
 state 90:
 
-	Term : Term MUL Unit .  (reduce by rule 46)
+	Term : Term MOD Unit .  (reduce by rule 46)
 
 
 
@@ -1299,6 +1356,24 @@ state 90:
 
 state 91:
 
+	Term : Term DIV Unit .  (reduce by rule 45)
+
+
+
+	.	reduce by rule 45
+
+
+state 92:
+
+	Term : Term MUL Unit .  (reduce by rule 44)
+
+
+
+	.	reduce by rule 44
+
+
+state 93:
+
 	Exp : Exp SUBR Term .  (reduce by rule 39)
 	Term : Term . MULR Unit 
 	Term : Term . DIVR Unit 
@@ -1306,17 +1381,17 @@ state 91:
 	Term : Term . DIV Unit 
 	Term : Term . MOD Unit 
 
-	MUL	shift 64
-	DIV	shift 63
-	MOD	shift 62
-	MULR	shift 61
-	DIVR	shift 60
+	MUL	shift 65
+	DIV	shift 64
+	MOD	shift 63
+	MULR	shift 62
+	DIVR	shift 61
 
 
 	.	reduce by rule 39
 
 
-state 92:
+state 94:
 
 	Exp : Exp ADDR Term .  (reduce by rule 38)
 	Term : Term . MULR Unit 
@@ -1325,27 +1400,27 @@ state 92:
 	Term : Term . DIV Unit 
 	Term : Term . MOD Unit 
 
-	MUL	shift 64
-	DIV	shift 63
-	MOD	shift 62
-	MULR	shift 61
-	DIVR	shift 60
+	MUL	shift 65
+	DIV	shift 64
+	MOD	shift 63
+	MULR	shift 62
+	DIVR	shift 61
 
 
 	.	reduce by rule 38
 
 
-state 93:
+state 95:
 
 	Cmd : WHILE Exp DO CmdSeq . OD 
 
-	OD	shift 109
+	OD	shift 112
 
 
 	.	error
 
 
-state 94:
+state 96:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1366,7 +1441,7 @@ state 94:
 	.	reduce by rule 35
 
 
-state 95:
+state 97:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1387,7 +1462,7 @@ state 95:
 	.	reduce by rule 34
 
 
-state 96:
+state 98:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1408,7 +1483,7 @@ state 96:
 	.	reduce by rule 33
 
 
-state 97:
+state 99:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1429,7 +1504,7 @@ state 97:
 	.	reduce by rule 32
 
 
-state 98:
+state 100:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1450,7 +1525,7 @@ state 98:
 	.	reduce by rule 31
 
 
-state 99:
+state 101:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1471,7 +1546,7 @@ state 99:
 	.	reduce by rule 30
 
 
-state 100:
+state 102:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1487,18 +1562,18 @@ state 100:
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
 
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
 
 
 	.	reduce by rule 28
 
 
-state 101:
+state 103:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp OR Exp .  (reduce by rule 27)
@@ -1514,18 +1589,18 @@ state 101:
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
 
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
 
 
 	.	reduce by rule 27
 
 
-state 102:
+state 104:
 
 	Exp : Exp SUB Term .  (reduce by rule 37)
 	Term : Term . MULR Unit 
@@ -1534,17 +1609,17 @@ state 102:
 	Term : Term . DIV Unit 
 	Term : Term . MOD Unit 
 
-	MUL	shift 64
-	DIV	shift 63
-	MOD	shift 62
-	MULR	shift 61
-	DIVR	shift 60
+	MUL	shift 65
+	DIV	shift 64
+	MOD	shift 63
+	MULR	shift 62
+	DIVR	shift 61
 
 
 	.	reduce by rule 37
 
 
-state 103:
+state 105:
 
 	Exp : Exp ADD Term .  (reduce by rule 36)
 	Term : Term . MULR Unit 
@@ -1553,17 +1628,17 @@ state 103:
 	Term : Term . DIV Unit 
 	Term : Term . MOD Unit 
 
-	MUL	shift 64
-	DIV	shift 63
-	MOD	shift 62
-	MULR	shift 61
-	DIVR	shift 60
+	MUL	shift 65
+	DIV	shift 64
+	MOD	shift 63
+	MULR	shift 62
+	DIVR	shift 61
 
 
 	.	reduce by rule 36
 
 
-state 104:
+state 106:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1577,46 +1652,80 @@ state 104:
 	Exp : Exp . SUB Term 
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
-	Exp : MAKERAT LPAREN Exp . COMMA Exp RPAREN 
+	Unit : MRAT LPAREN Exp . RPAREN 
 
-	ADD	shift 77
-	SUB	shift 76
-	OR	shift 75
-	AND	shift 74
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
-	COMMA	shift 110
-	ADDR	shift 66
-	SUBR	shift 65
-
-
-	.	error
-
-
-state 105:
-
-	Exp : LPAREN Exp RPAREN .  (reduce by rule 41)
-
-
-
-	.	reduce by rule 41
-
-
-state 106:
-
-	Cmd : IF Exp THEN CmdSeq . ELSE CmdSeq FI 
-
-	ELSE	shift 111
+	ADD	shift 78
+	SUB	shift 77
+	RPAREN	shift 113
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	ADDR	shift 67
+	SUBR	shift 66
 
 
 	.	error
 
 
 state 107:
+
+	Exp : Exp . OR Exp 
+	Exp : Exp . AND Exp 
+	Exp : Exp . EQ Exp 
+	Exp : Exp . NEQ Exp 
+	Exp : Exp . LT Exp 
+	Exp : Exp . GT Exp 
+	Exp : Exp . LEQ Exp 
+	Exp : Exp . GEQ Exp 
+	Exp : Exp . ADD Term 
+	Exp : Exp . SUB Term 
+	Exp : Exp . ADDR Term 
+	Exp : Exp . SUBR Term 
+	Unit : MAKERAT LPAREN Exp . COMMA Exp RPAREN 
+
+	ADD	shift 78
+	SUB	shift 77
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	COMMA	shift 114
+	ADDR	shift 67
+	SUBR	shift 66
+
+
+	.	error
+
+
+state 108:
+
+	Unit : LPAREN Exp RPAREN .  (reduce by rule 51)
+
+
+
+	.	reduce by rule 51
+
+
+state 109:
+
+	Cmd : IF Exp THEN CmdSeq . ELSE CmdSeq FI 
+
+	ELSE	shift 115
+
+
+	.	error
+
+
+state 110:
 
 	Cmd : PRINT LPAREN Exp RPAREN .  (reduce by rule 22)
 
@@ -1625,7 +1734,7 @@ state 107:
 	.	reduce by rule 22
 
 
-state 108:
+state 111:
 
 	Cmd : READ LPAREN ID RPAREN .  (reduce by rule 21)
 
@@ -1634,7 +1743,7 @@ state 108:
 	.	reduce by rule 21
 
 
-state 109:
+state 112:
 
 	Cmd : WHILE Exp DO CmdSeq OD .  (reduce by rule 24)
 
@@ -1643,39 +1752,49 @@ state 109:
 	.	reduce by rule 24
 
 
-state 110:
+state 113:
 
-	Exp : MAKERAT LPAREN Exp COMMA . Exp RPAREN 
+	Unit : MRAT LPAREN Exp RPAREN .  (reduce by rule 53)
 
-	INT	shift 49
-	LPAREN	shift 48
-	TT	shift 47
-	FF	shift 46
-	NOT	shift 45
-	ID	shift 44
-	INVERSE	shift 43
-	MAKERAT	shift 42
-	RAT	shift 41
 
-	Exp	goto 112
+
+	.	reduce by rule 53
+
+
+state 114:
+
+	Unit : MAKERAT LPAREN Exp COMMA . Exp RPAREN 
+
+	INT	shift 50
+	LPAREN	shift 49
+	TT	shift 48
+	FF	shift 47
+	NOT	shift 46
+	ID	shift 45
+	INVERSE	shift 44
+	MAKERAT	shift 43
+	RAT	shift 42
+	MRAT	shift 41
+
+	Exp	goto 116
 	Term	goto 39
 	Unit	goto 38
 
 	.	error
 
 
-state 111:
+state 115:
 
 	Cmd : IF Exp THEN CmdSeq ELSE . CmdSeq FI 
 
 	LBRACE	shift 12
 
-	CmdSeq	goto 113
+	CmdSeq	goto 117
 
 	.	error
 
 
-state 112:
+state 116:
 
 	Exp : Exp . OR Exp 
 	Exp : Exp . AND Exp 
@@ -1689,46 +1808,46 @@ state 112:
 	Exp : Exp . SUB Term 
 	Exp : Exp . ADDR Term 
 	Exp : Exp . SUBR Term 
-	Exp : MAKERAT LPAREN Exp COMMA Exp . RPAREN 
+	Unit : MAKERAT LPAREN Exp COMMA Exp . RPAREN 
 
-	ADD	shift 77
-	SUB	shift 76
-	RPAREN	shift 114
-	OR	shift 75
-	AND	shift 74
-	EQ	shift 73
-	NEQ	shift 72
-	LT	shift 71
-	GT	shift 70
-	LEQ	shift 69
-	GEQ	shift 68
-	ADDR	shift 66
-	SUBR	shift 65
+	ADD	shift 78
+	SUB	shift 77
+	RPAREN	shift 118
+	OR	shift 76
+	AND	shift 75
+	EQ	shift 74
+	NEQ	shift 73
+	LT	shift 72
+	GT	shift 71
+	LEQ	shift 70
+	GEQ	shift 69
+	ADDR	shift 67
+	SUBR	shift 66
 
 
 	.	error
 
 
-state 113:
+state 117:
 
 	Cmd : IF Exp THEN CmdSeq ELSE CmdSeq . FI 
 
-	FI	shift 115
+	FI	shift 119
 
 
 	.	error
 
 
-state 114:
+state 118:
 
-	Exp : MAKERAT LPAREN Exp COMMA Exp RPAREN .  (reduce by rule 42)
-
-
-
-	.	reduce by rule 42
+	Unit : MAKERAT LPAREN Exp COMMA Exp RPAREN .  (reduce by rule 52)
 
 
-state 115:
+
+	.	reduce by rule 52
+
+
+state 119:
 
 	Cmd : IF Exp THEN CmdSeq ELSE CmdSeq FI .  (reduce by rule 23)
 
@@ -1737,7 +1856,7 @@ state 115:
 	.	reduce by rule 23
 
 
-state 116:
+state 120:
 
 
 	EOF	accept
@@ -1745,5 +1864,5 @@ state 116:
 
 	.	error
 
-181 of 484 action table entries left after compaction
-93 goto table entries
+199 of 556 action table entries left after compaction
+96 goto table entries
